@@ -27,17 +27,19 @@ jobs:
       - name: Build backend image
         run: docker build -t dental/backend:ci -f app/backend/Dockerfile.prod.yml app/backend
 
-      - name: Smoke test container with runtime envs
+      - name: Smoke test container with runtime envs for backend
         env:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           MONGO_URI: ${{ secrets.MONGO_URI }}
           NODE_ENV: production
+          PORT: 9000
         run: |
           cd app
           docker run --rm \
             -e STRIPE_SECRET_KEY \
             -e MONGO_URI \
             -e NODE_ENV \
+            -p 9000:9000 \
             dental/backend:ci \
             node -e "console.log('env ok?', !!process.env.STRIPE_SECRET_KEY, !!process.env.MONGO_URI)"
 
@@ -45,19 +47,16 @@ jobs:
       - name: Build Front end image
         run: docker build -t dental/frontend:ci -f app/frontend/Dockerfile.nginx.prod.yml app/frontend
 
-      - name: Smoke test container with runtime envs
+      - name: Smoke test container with runtime envs for front end
         env:
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          MONGO_URI: ${{ secrets.MONGO_URI }}
           NODE_ENV: production
         run: |
           cd app
           docker run --rm \
-            -e STRIPE_SECRET_KEY \
-            -e MONGO_URI \
             -e NODE_ENV \
+            -p 8080:8080 \
             dental/frontend:ci \
-            node -e "console.log('env ok?', !!process.env.STRIPE_SECRET_KEY, !!process.env.MONGO_URI)"   
+               
     #clean the environment
       - name: Cleanup containers/images/volumes
         if: always()
