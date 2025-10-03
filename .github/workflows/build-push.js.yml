@@ -71,7 +71,7 @@ jobs:
   # Make names/tags available to later steps
       - name: Prepare image names and tags
         run: |
-          USER_LC=$(echo "${{ secrets.DOCKERHUB_USERNAME }}" | tr '[:upper:]' '[:lower:]')
+          USER_LC=$(echo "${{ secrets.DOCKER_USERNAME }}" | tr '[:upper:]' '[:lower:]')
           echo "BACKEND_REPO=$USER_LC/dental-backend" >> $GITHUB_ENV
           echo "FRONTEND_REPO=$USER_LC/dental-frontend" >> $GITHUB_ENV
           echo "SHA_TAG=${GITHUB_SHA::12}" >> $GITHUB_ENV
