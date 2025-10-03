@@ -39,6 +39,7 @@ jobs:
             -e STRIPE_SECRET_KEY \
             -e MONGO_URI \
             -e NODE_ENV \
+            -e PORT \
             -p 9000:9000 \
             dental/backend:ci \
 
