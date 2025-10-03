@@ -67,46 +67,60 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_ACCESS_KEY }}
 
-
-
-      # Normalize repo names and tags
       - name: Prepare image names and tags
         run: |
-          # Lowercase username
           USER_LC=$(echo "${{ secrets.DOCKER_USERNAME }}" | tr '[:upper:]' '[:lower:]')
-
-          # Use short SHA (already hex/lowercase) OR use branch name
-          SHA_TAG=${GITHUB_SHA::7}
-          # If you prefer branch/tag name, sanitize + lowercase:
-          # SAFE_TAG=$(echo "$GITHUB_REF_NAME" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9_.-' '-')
-
           echo "BACKEND_REPO=$USER_LC/dental-backend" >> $GITHUB_ENV
           echo "FRONTEND_REPO=$USER_LC/dental-frontend" >> $GITHUB_ENV
-          echo "SHA_TAG=$SHA_TAG" >> $GITHUB_ENV
+          echo "SHA_TAG=${GITHUB_SHA::12}" >> $GITHUB_ENV   # short, readable
 
-      # Tag images (built earlier as dental/backend:ci and dental/frontend:ci)
       - name: Tag images for push
         run: |
+          # backend
           docker tag dental/backend:ci  $BACKEND_REPO:latest
           docker tag dental/backend:ci  $BACKEND_REPO:$SHA_TAG
+          # frontend
           docker tag dental/frontend:ci $FRONTEND_REPO:latest
           docker tag dental/frontend:ci $FRONTEND_REPO:$SHA_TAG
 
+          # debug (shows tags present locally)
+          docker images | grep -E "dental-(back|front)end|$BACKEND_REPO|$FRONTEND_REPO" || true
 
-      # # --- Tag images for your Docker Hub namespace ---
+      - name: Push images to Docker Hub
+        run: |
+          docker push $BACKEND_REPO:latest
+          docker push $BACKEND_REPO:$SHA_TAG
+          docker push $FRONTEND_REPO:latest
+          docker push $FRONTEND_REPO:$SHA_TAG
+
+
+
+
+
+
+      # # Normalize repo names and tags
+      # - name: Prepare image names and tags
+      #   run: |
+      #     # Lowercase username
+      #     USER_LC=$(echo "${{ secrets.DOCKER_USERNAME }}" | tr '[:upper:]' '[:lower:]')
+
+      #     # Use short SHA (already hex/lowercase) OR use branch name
+      #     SHA_TAG=${GITHUB_SHA::7}
+      #     # If you prefer branch/tag name, sanitize + lowercase:
+      #     # SAFE_TAG=$(echo "$GITHUB_REF_NAME" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9_.-' '-')
+
+      #     echo "BACKEND_REPO=$USER_LC/dental-backend" >> $GITHUB_ENV
+      #     echo "FRONTEND_REPO=$USER_LC/dental-frontend" >> $GITHUB_ENV
+      #     echo "SHA_TAG=$SHA_TAG" >> $GITHUB_ENV
+
+      # # Tag images (built earlier as dental/backend:ci and dental/frontend:ci)
       # - name: Tag images for push
       #   run: |
-      #     BACKEND_REPO=${{ secrets.DOCKER_USERNAME }}/dental-backend
-      #     FRONTEND_REPO=${{ secrets.DOCKER_ACCESS_KEY }}/dental-frontend
-      #     SHA_TAG=${{ github.sha }}
-
-      #     # backend (built earlier as dental/backend:ci)
       #     docker tag dental/backend:ci  $BACKEND_REPO:latest
-      #     docker tag dental/backend:ci  $BACKEND_REPO:${SHA_TAG}
-
-      #     # frontend (built earlier as dental/frontend:ci)
+      #     docker tag dental/backend:ci  $BACKEND_REPO:$SHA_TAG
       #     docker tag dental/frontend:ci $FRONTEND_REPO:latest
-      #     docker tag dental/frontend:ci $FRONTEND_REPO:${SHA_TAG}
+      #     docker tag dental/frontend:ci $FRONTEND_REPO:$SHA_TAG
+
 
       # --- Push both latest and SHA tags ---
       - name: Push images to Docker Hub
