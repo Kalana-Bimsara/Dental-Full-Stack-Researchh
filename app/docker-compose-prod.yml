@@ -1,0 +1,21 @@
+services:
+  nginx:
+    build:
+      context: frontend/
+      dockerfile: Dockerfile.nginx.prod.yml
+    environment:
+      NODE_ENV: production
+    restart: always
+    ports:
+      - 8080:8080
+    
+  server:
+    build:
+      context: backend/
+      dockerfile: Dockerfile.prod.yml
+    restart: always
+    environment:
+      NODE_ENV: production
+    ports:
+      - 9000:9000
+    

@@ -1,0 +1,78 @@
+name: Full-stack CI/CD with Docker Compose
+
+on:
+  push:
+    branches:
+      #- main  
+        - backend
+jobs:
+  docker-compose:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+
+      - name: Set up Docker Compose
+        run: |
+          cd app 
+          sudo apt-get update
+
+
+      - name: Build backend image
+        run: docker build -t dental/backend:ci -f app/backend/Dockerfile.prod.yml app/backend
+
+      - name: Smoke test container with runtime envs
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          NODE_ENV: production
+        run: |
+          cd app
+          docker run --rm \
+            -e STRIPE_SECRET_KEY \
+            -e MONGO_URI \
+            -e NODE_ENV \
+            dental/backend:ci \
+            node -e "console.log('env ok?', !!process.env.STRIPE_SECRET_KEY, !!process.env.MONGO_URI)"
+
+    #build front end image
+      - name: Build Front end image
+        run: docker build -t dental/frontend:ci -f app/frontend/Dockerfile.nginx.prod.yml app/frontend
+
+      - name: Smoke test container with runtime envs
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          NODE_ENV: production
+        run: |
+          cd app
+          docker run --rm \
+            -e STRIPE_SECRET_KEY \
+            -e MONGO_URI \
+            -e NODE_ENV \
+            dental/frontend:ci \
+            node -e "console.log('env ok?', !!process.env.STRIPE_SECRET_KEY, !!process.env.MONGO_URI)"   
+    #clean the environment
+      - name: Cleanup containers/images/volumes
+        if: always()
+        run: |
+          # stop & remove any leftover containers (none if --rm was used)
+          docker ps -aq | xargs -r docker rm -f
+
+          # remove our image explicitly (ignore errors if not present)
+          docker rmi -f myorg/backend:ci || true
+
+          # prune dangling images, networks, and volumes
+          docker image prune -af || true
+          docker network prune -f || true
+          docker volume prune -f || true
+
+          # nuke everything dangling (including build cache)
+          docker system prune -af --volumes || true
+

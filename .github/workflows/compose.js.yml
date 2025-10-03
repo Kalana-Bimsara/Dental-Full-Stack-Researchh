@@ -3,11 +3,11 @@ name: Full-stack CI/CD with Docker Compose
 on:
   push:
     branches:
-      - main
+     # - main
       - backend
   pull_request:
     branches:
-      - main
+     # - main
       - backend
       
 jobs:
