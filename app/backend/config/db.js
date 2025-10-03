@@ -1,8 +1,9 @@
 import mongoose from 'mongoose';
 
 const connectDB = async () => {
+  const uriFromEnv = process.env.MONGO_URI;
   try {
-    await mongoose.connect('mongodb://mongo:27017/dental');
+    await mongoose.connect(uriFromEnv);
     console.log('MongoDB connected');
   } catch (error) {
     console.error('MongoDB connection error:', error);
