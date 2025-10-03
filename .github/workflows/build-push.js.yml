@@ -41,6 +41,7 @@ jobs:
             -e NODE_ENV \
             -e BACKEND_PORT \
             -p 9000:9000 \
+            -d \
             dental/backend:ci \
 
     #build front end image
@@ -55,6 +56,7 @@ jobs:
           docker run --rm \
             -e NODE_ENV \
             -p 8080:8080 \
+            -d \
             dental/frontend:ci \
                
     #clean the environment
