@@ -32,14 +32,14 @@ jobs:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           MONGO_URI: ${{ secrets.MONGO_URI }}
           NODE_ENV: production
-          PORT: 9000
+          BACKEND_PORT: 9000
         run: |
           cd app
           docker run --rm \
             -e STRIPE_SECRET_KEY \
             -e MONGO_URI \
             -e NODE_ENV \
-            -e PORT \
+            -e BACKEND_PORT \
             -p 9000:9000 \
             dental/backend:ci \
 
