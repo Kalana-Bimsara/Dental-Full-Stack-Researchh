@@ -6,7 +6,9 @@ import {
 } from "@stripe/react-stripe-js";
 
 export default function CheckoutForm() {
+  const baseUrl = process.env.REACT_APP_PUBLIC_BASE_URL_PORT;
   const stripe = useStripe();
+  
   const elements = useElements();
 
   const [message, setMessage] = useState(null);
@@ -27,7 +29,7 @@ export default function CheckoutForm() {
       elements,
       confirmParams: {
         // Make sure to change this to your payment completion page
-        return_url: "http://localhost:5173/complete",
+        return_url: `${baseUrl}/complete`,
       },
     });
 
