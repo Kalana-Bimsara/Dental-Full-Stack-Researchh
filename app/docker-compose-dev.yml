@@ -2,7 +2,7 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: dockerfile   
+      dockerfile: Dockerfile   
     ports:
       - "5173:5173" 
     depends_on:
@@ -14,11 +14,13 @@ services:
       - ./frontend/src:/app/src 
     networks:
       - mynetwork
+    env_file:
+      - .env
 
   backend:
     build:
       context: ./backend
-      dockerfile: dockerfile   
+      dockerfile: Dockerfile   
     ports:
       - "9000:9000" 
       - "8080:8080"
@@ -32,6 +34,8 @@ services:
       - MONGO_URI=mongodb://mongo:27017/dental
     networks:
       - mynetwork
+    env_file:
+      - .env
 
   mongo:
     image: mongo:latest

@@ -3,14 +3,14 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
-import { configDotenv } from 'dotenv';
+
 import basicRoutes from "./routes/basicRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import { connectWebSocket } from './controllers/useController.js';
 
-configDotenv();
+
 const app = express();
-const port = process.env.BACKEND_PORT || 9000;
+const port = process.env.BACKEND_PORT;
 
 // Connect to MongoDB
 connectDB();

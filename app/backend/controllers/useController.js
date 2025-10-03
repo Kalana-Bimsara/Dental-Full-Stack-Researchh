@@ -4,7 +4,7 @@ import serviceModel from "../models/services.js";
 import Stripe from "stripe";
 import BookingModel from "../models/bookingDetails.js"
 import wss from "../config/webSocket.js";
-const stripe = new Stripe('sk_test_51Qg5RMRbw5Znp41bpA9rmVFmJ5UVN3um7rCq0ilKgbr2KtcP60Rz0CTMOc7jncIC20D34ZV1hTpWZNX2IU4tONct00scAwd6Te');
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // web socket controllers / logics 
 
