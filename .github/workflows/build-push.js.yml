@@ -41,7 +41,6 @@ jobs:
             -e NODE_ENV \
             -p 9000:9000 \
             dental/backend:ci \
-            node -e "console.log('env ok?', !!process.env.STRIPE_SECRET_KEY, !!process.env.MONGO_URI)"
 
     #build front end image
       - name: Build Front end image
