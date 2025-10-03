@@ -11,12 +11,10 @@ services:
   server:
     build:
       context: .
-      dockerfile: Dockerfile.prod.yml
-    restart: always
     environment:
       NODE_ENV: production
     ports:
-      - 9000:9000
+      - 5173:5173
 
 # The commented out section below is an example of how to define a PostgreSQL
 # database that your application can use. `depends_on` tells Docker Compose to
