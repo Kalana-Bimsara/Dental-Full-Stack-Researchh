@@ -73,7 +73,7 @@ jobs:
       - name: Prepare image names and tags
         run: |
           # Lowercase username
-          USER_LC=$(echo "${{ secrets.DOCKERHUB_USERNAME }}" | tr '[:upper:]' '[:lower:]')
+          USER_LC=$(echo "${{ secrets.DOCKER_USERNAME }}" | tr '[:upper:]' '[:lower:]')
 
           # Use short SHA (already hex/lowercase) OR use branch name
           SHA_TAG=${GITHUB_SHA::7}
