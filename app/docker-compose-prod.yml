@@ -1,21 +1,29 @@
 services:
-  nginx:
-    build:
-      context: frontend/
-      dockerfile: Dockerfile.nginx.prod.yml
+  dental-frontend:
+    # build:
+    #   context: frontend/
+    #   dockerfile: Dockerfile.nginx.prod.yml
+    image: dinethchathurya/dental-frontend:latest
+
+    container_name: nginx
     environment:
       NODE_ENV: production
     restart: always
     ports:
       - 8080:8080
+    env_file:
+      - .env
     
-  server:
-    build:
-      context: backend/
-      dockerfile: Dockerfile.prod.yml
+  dental-backend:
+    # build:
+    #   context: backend/
+    #   dockerfile: Dockerfile.prod.yml
+    image: dinethchathurya/dental-backend:latest
+    container_name: server
     restart: always
     environment:
       NODE_ENV: production
     ports:
       - 9000:9000
-    
+    env_file:
+      - .env
