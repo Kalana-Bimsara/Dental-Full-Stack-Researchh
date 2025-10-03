@@ -3,7 +3,7 @@ name: Full-stack CI/CD
 on:
   push:
     branches:
-      - main  
+      #- main  
       - backend
   pull_request:
     branches:

@@ -3,8 +3,8 @@ name: Full-stack CI/CD with Docker Compose
 on:
   push:
     branches:
-      #- main  
-        - backend
+        - main  
+
 jobs:
   docker-compose:
     runs-on: ubuntu-latest
