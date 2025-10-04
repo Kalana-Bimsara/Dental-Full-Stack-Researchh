@@ -117,33 +117,7 @@ jobs:
               DOCKER_USER,DOCKER_TOKEN,BACKEND_IMAGE,FRONTEND_IMAGE,MONGO_URI,STRIPE_SECRET_KEY
             command_timeout: 30m
             script: |
-              set -euxo pipefail
-
-              echo "OS info:"
-              cat /etc/os-release || true
-
-              # ----- ensure docker is up (AL2 or AL2023) -----
-              if ! command -v docker >/dev/null 2>&1; then
-                if command -v yum >/dev/null 2>&1 && grep -q 'Amazon Linux 2' /etc/os-release; then
-                  # Amazon Linux 2
-                  sudo yum update -y
-                  sudo amazon-linux-extras enable docker || true
-                  sudo yum install -y docker
-                elif command -v dnf >/dev/null 2>&1; then
-                  # Amazon Linux 2023
-                  sudo dnf update -y
-                  sudo dnf install -y docker
-                else
-                  echo "Unsupported distro. Please install Docker manually." >&2
-                  exit 1
-                fi
-
-                sudo systemctl enable docker
-                sudo systemctl start docker
-                sudo usermod -a -G docker ec2-user || true
-              else
-                sudo systemctl start docker || true
-              fi
+             
 
               # ----- pull newest images -----
               sudo docker pull "${{ secrets.DOCKER_USERNAME }}/dental-backend:latest"
@@ -230,3 +204,37 @@ jobs:
             #   # ----- health check -----
             #   sleep 3
             #   sudo docker ps
+
+
+
+
+
+
+
+            #  # set -euxo pipefail
+
+            #   # echo "OS info:"
+            #   # cat /etc/os-release || true
+
+            #   # ----- ensure docker is up (AL2 or AL2023) -----
+            #   if ! command -v docker >/dev/null 2>&1; then
+            #     if command -v yum >/dev/null 2>&1 && grep -q 'Amazon Linux 2' /etc/os-release; then
+            #       # Amazon Linux 2
+            #       sudo yum update -y
+            #       sudo amazon-linux-extras enable docker || true
+            #       sudo yum install -y docker
+            #     elif command -v dnf >/dev/null 2>&1; then
+            #       # Amazon Linux 2023
+            #       sudo dnf update -y
+            #       sudo dnf install -y docker
+            #     else
+            #       echo "Unsupported distro. Please install Docker manually." >&2
+            #       exit 1
+            #     fi
+
+            #     sudo systemctl enable docker
+            #     sudo systemctl start docker
+            #     sudo usermod -a -G docker ec2-user || true
+            #   else
+            #     sudo systemctl start docker || true
+            #   fi
