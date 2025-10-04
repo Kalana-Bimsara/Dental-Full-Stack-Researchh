@@ -6,88 +6,88 @@ on:
         - main  
 
 jobs:
-  multiarch-build-publish-to-docker-hub:
+  # multiarch-build-publish-to-docker-hub:
     
-    name: Build & Publish (amd64+arm64) to Docker Hub
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+  #   name: Build & Publish (amd64+arm64) to Docker Hub
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: read
+  #     packages: write
 
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: backend
-            context: app/backend
-            file: app/backend/Dockerfile.prod.yml
-            repo_suffix: dental-backend
-          - name: frontend
-            context: app/frontend
-            file: app/frontend/Dockerfile.nginx.prod.yml
-            repo_suffix: dental-frontend
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       include:
+  #         - name: backend
+  #           context: app/backend
+  #           file: app/backend/Dockerfile.prod.yml
+  #           repo_suffix: dental-backend
+  #         - name: frontend
+  #           context: app/frontend
+  #           file: app/frontend/Dockerfile.nginx.prod.yml
+  #           repo_suffix: dental-frontend 
+            
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+  #     - name: Set up QEMU (cross-arch)
+  #       uses: docker/setup-qemu-action@v3
 
-      - name: Set up QEMU (cross-arch)
-        uses: docker/setup-qemu-action@v3
+  #     - name: Set up Buildx
+  #       uses: docker/setup-buildx-action@v3
 
-      - name: Set up Buildx
-        uses: docker/setup-buildx-action@v3
+  #     - name: Login to Docker Hub
+  #       uses: docker/login-action@v3
+  #       with:
+  #         username: ${{ secrets.DOCKER_USERNAME }}
+  #         password: ${{ secrets.DOCKER_ACCESS_KEY }}
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_ACCESS_KEY }}
+  #     - name: Prepare tags
+  #       run: |
+  #         USER_LC=$(echo "${{ secrets.DOCKER_USERNAME }}" | tr '[:upper:]' '[:lower:]')
+  #         SHORT_SHA=${GITHUB_SHA::12}
+  #         SAFE_REF=$(echo "$GITHUB_REF_NAME" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9_.-' '-')
+  #         echo "USER_LC=$USER_LC" >> $GITHUB_ENV
+  #         echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
+  #         echo "SAFE_REF=$SAFE_REF" >> $GITHUB_ENV
 
-      - name: Prepare tags
-        run: |
-          USER_LC=$(echo "${{ secrets.DOCKER_USERNAME }}" | tr '[:upper:]' '[:lower:]')
-          SHORT_SHA=${GITHUB_SHA::12}
-          SAFE_REF=$(echo "$GITHUB_REF_NAME" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9_.-' '-')
-          echo "USER_LC=$USER_LC" >> $GITHUB_ENV
-          echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
-          echo "SAFE_REF=$SAFE_REF" >> $GITHUB_ENV
+  #     - name: Build & push ${{ matrix.name }}
+  #       uses: docker/build-push-action@v6
+  #       with:
+  #         context: ${{ matrix.context }}
+  #         file: ${{ matrix.file }}
+  #         platforms: linux/amd64,linux/arm64
+  #         push: true
+  #         tags: |
+  #           ${{ env.USER_LC }}/${{ matrix.repo_suffix }}:latest
+  #           ${{ env.USER_LC }}/${{ matrix.repo_suffix }}:${{ env.SHORT_SHA }}
+  #           ${{ env.USER_LC }}/${{ matrix.repo_suffix }}:${{ env.SAFE_REF }}
+  #         cache-from: type=gha
+  #         cache-to: type=gha,mode=max
 
-      - name: Build & push ${{ matrix.name }}
-        uses: docker/build-push-action@v6
-        with:
-          context: ${{ matrix.context }}
-          file: ${{ matrix.file }}
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: |
-            ${{ env.USER_LC }}/${{ matrix.repo_suffix }}:latest
-            ${{ env.USER_LC }}/${{ matrix.repo_suffix }}:${{ env.SHORT_SHA }}
-            ${{ env.USER_LC }}/${{ matrix.repo_suffix }}:${{ env.SAFE_REF }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+  #   #clean the environment
+  #     - name: Cleanup containers/images/volumes
+  #       if: always()
+  #       run: |
+  #         # stop & remove any leftover containers (none if --rm was used)
+  #         docker ps -aq | xargs -r docker rm -f
 
-    #clean the environment
-      - name: Cleanup containers/images/volumes
-        if: always()
-        run: |
-          # stop & remove any leftover containers (none if --rm was used)
-          docker ps -aq | xargs -r docker rm -f
+  #         # remove our image explicitly (ignore errors if not present)
+  #         docker rmi -f myorg/backend:ci || true
 
-          # remove our image explicitly (ignore errors if not present)
-          docker rmi -f myorg/backend:ci || true
+  #         # prune dangling images, networks, and volumes
+  #         docker image prune -af || true
+  #         docker network prune -f || true
+  #         docker volume prune -f || true
 
-          # prune dangling images, networks, and volumes
-          docker image prune -af || true
-          docker network prune -f || true
-          docker volume prune -f || true
-
-          # nuke everything dangling (including build cache)
-          docker system prune -af --volumes || true
+  #         # nuke everything dangling (including build cache)
+  #         docker system prune -af --volumes || true
 
 
   deploy-ec2-Testing-environment:
     name: Deploy New images to Testing environment EC2 via SSH
-    needs: multiarch-build-publish-to-docker-hub
+    # needs: multiarch-build-publish-to-docker-hub
     runs-on: ubuntu-latest
     steps:
 
