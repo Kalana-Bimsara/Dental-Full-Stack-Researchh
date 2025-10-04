@@ -5,7 +5,7 @@ const Prices = () => {
     <>
       <section id="prices" className="py-5 --bs-primary">
         <div className="container">
-          <h2 className="text-center mb-4">Our Prices.</h2>
+          <h2 className="text-center mb-4">Our Prices</h2>
           <div className="table-responsive">
             <table className="table table-bordered table-striped">
               <thead>
