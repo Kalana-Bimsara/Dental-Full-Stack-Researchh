@@ -103,7 +103,7 @@ jobs:
           uses: appleboy/ssh-action@v1.0.3
           with:
             host: ${{ secrets.EC2_HOST }}   # public IP or DNS
-            username: ec2-user              # Amazon Linux; use ubuntu for Ubuntu AMIs
+            username: http-ssh  #ec2-user               Amazon Linux; use ubuntu for Ubuntu AMIs
             key_path: ~/.ssh/id_ec2.pem
             script_stop: true
             command_timeout: 30m
