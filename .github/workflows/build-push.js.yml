@@ -6,83 +6,83 @@ on:
         - main  
 
 jobs:
-  # multiarch-build-publish-to-docker-hub:
+  multiarch-build-publish-to-docker-hub:
     
-  #   name: Build & Publish (amd64+arm64) to Docker Hub
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     contents: read
-  #     packages: write
+    name: Build & Publish (amd64+arm64) to Docker Hub
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       include:
-  #         - name: backend
-  #           context: app/backend
-  #           file: app/backend/Dockerfile.prod.yml
-  #           repo_suffix: dental-backend
-  #         - name: frontend
-  #           context: app/frontend
-  #           file: app/frontend/Dockerfile.nginx.prod.yml
-  #           repo_suffix: dental-frontend 
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: backend
+            context: app/backend
+            file: app/backend/Dockerfile.prod.yml
+            repo_suffix: dental-backend
+          - name: frontend
+            context: app/frontend
+            file: app/frontend/Dockerfile.nginx.prod.yml
+            repo_suffix: dental-frontend 
             
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  #     - name: Set up QEMU (cross-arch)
-  #       uses: docker/setup-qemu-action@v3
+      - name: Set up QEMU (cross-arch)
+        uses: docker/setup-qemu-action@v3
 
-  #     - name: Set up Buildx
-  #       uses: docker/setup-buildx-action@v3
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
 
-  #     - name: Login to Docker Hub
-  #       uses: docker/login-action@v3
-  #       with:
-  #         username: ${{ secrets.DOCKER_USERNAME }}
-  #         password: ${{ secrets.DOCKER_ACCESS_KEY }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_ACCESS_KEY }}
 
-  #     - name: Prepare tags
-  #       run: |
-  #         USER_LC=$(echo "${{ secrets.DOCKER_USERNAME }}" | tr '[:upper:]' '[:lower:]')
-  #         SHORT_SHA=${GITHUB_SHA::12}
-  #         SAFE_REF=$(echo "$GITHUB_REF_NAME" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9_.-' '-')
-  #         echo "USER_LC=$USER_LC" >> $GITHUB_ENV
-  #         echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
-  #         echo "SAFE_REF=$SAFE_REF" >> $GITHUB_ENV
+      - name: Prepare tags
+        run: |
+          USER_LC=$(echo "${{ secrets.DOCKER_USERNAME }}" | tr '[:upper:]' '[:lower:]')
+          SHORT_SHA=${GITHUB_SHA::12}
+          SAFE_REF=$(echo "$GITHUB_REF_NAME" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9_.-' '-')
+          echo "USER_LC=$USER_LC" >> $GITHUB_ENV
+          echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
+          echo "SAFE_REF=$SAFE_REF" >> $GITHUB_ENV
 
-  #     - name: Build & push ${{ matrix.name }}
-  #       uses: docker/build-push-action@v6
-  #       with:
-  #         context: ${{ matrix.context }}
-  #         file: ${{ matrix.file }}
-  #         platforms: linux/amd64,linux/arm64
-  #         push: true
-  #         tags: |
-  #           ${{ env.USER_LC }}/${{ matrix.repo_suffix }}:latest
-  #           ${{ env.USER_LC }}/${{ matrix.repo_suffix }}:${{ env.SHORT_SHA }}
-  #           ${{ env.USER_LC }}/${{ matrix.repo_suffix }}:${{ env.SAFE_REF }}
-  #         cache-from: type=gha
-  #         cache-to: type=gha,mode=max
+      - name: Build & push ${{ matrix.name }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.file }}
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.USER_LC }}/${{ matrix.repo_suffix }}:latest
+            ${{ env.USER_LC }}/${{ matrix.repo_suffix }}:${{ env.SHORT_SHA }}
+            ${{ env.USER_LC }}/${{ matrix.repo_suffix }}:${{ env.SAFE_REF }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-  #   #clean the environment
-  #     - name: Cleanup containers/images/volumes
-  #       if: always()
-  #       run: |
-  #         # stop & remove any leftover containers (none if --rm was used)
-  #         docker ps -aq | xargs -r docker rm -f
+    #clean the environment
+      - name: Cleanup containers/images/volumes
+        if: always()
+        run: |
+          # stop & remove any leftover containers (none if --rm was used)
+          docker ps -aq | xargs -r docker rm -f
 
-  #         # remove our image explicitly (ignore errors if not present)
-  #         docker rmi -f myorg/backend:ci || true
+          # remove our image explicitly (ignore errors if not present)
+          docker rmi -f myorg/backend:ci || true
 
-  #         # prune dangling images, networks, and volumes
-  #         docker image prune -af || true
-  #         docker network prune -f || true
-  #         docker volume prune -f || true
+          # prune dangling images, networks, and volumes
+          docker image prune -af || true
+          docker network prune -f || true
+          docker volume prune -f || true
 
-  #         # nuke everything dangling (including build cache)
-  #         docker system prune -af --volumes || true
+          # nuke everything dangling (including build cache)
+          docker system prune -af --volumes || true
 
 
   deploy-ec2-Testing-environment:
@@ -91,96 +91,82 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-        # - name: Prepare SSH key
-        #   run: |
-        #     mkdir -p ~/.ssh
-        #     echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_ec2.pem
-        #     chmod 600 ~/.ssh/id_ec2.pem
-        #     # validate the PEM (this fails if it’s malformed)
-        #     ssh-keygen -y -f ~/.ssh/id_ec2.pem >/dev/null
+        # - name: Deploy to EC2 over SSH
+        #   uses: appleboy/ssh-action@v1.0.3
+        #   with:
+        #     host: ${{ secrets.EC2_HOST }}   
+        #     username: ec2-user              
+        #     key: ${{ secrets.EC2_SSH_KEY }}
+        #     port: 22
+        #     script_stop: true
+        #     command_timeout: 30m
+        #     script: |
+        #       echo "Connected. Docker version:"
+        #       docker --version || (sudo yum install -y docker && sudo systemctl start docker)
+        #       # ... your redeploy commands ...
 
-        - name: Deploy to EC2 over SSH
+        - name: Deploy over SSH
           uses: appleboy/ssh-action@v1.0.3
           with:
-            host: ${{ secrets.EC2_HOST }}   
-            username: ec2-user              
+            host: ${{ secrets.EC2_HOST }}
+            username: ec2-user
             key: ${{ secrets.EC2_SSH_KEY }}
             port: 22
             script_stop: true
+            envs: |
+              DOCKER_USER,DOCKER_TOKEN,BACKEND_IMAGE,FRONTEND_IMAGE,MONGO_URI,STRIPE_SECRET_KEY
             command_timeout: 30m
             script: |
-              echo "Connected. Docker version:"
-              docker --version || (sudo yum install -y docker && sudo systemctl start docker)
-              # ... your redeploy commands ...
+              set -Eeuo pipefail
 
+              # ----- env from GH secrets -----
+              DOCKER_USER="${{ secrets.DOCKER_USERNAME }}"
+              DOCKER_TOKEN="${{ secrets.DOCKER_ACCESS_KEY }}"
+              BACKEND_IMAGE="${{ secrets.DOCKER_USERNAME }}/dental-backend:latest"
+              FRONTEND_IMAGE="${{ secrets.DOCKER_USERNAME }}/dental-frontend:latest"
+              MONGO_URI="${{ secrets.MONGO_URI }}"
+              STRIPE_SECRET_KEY="${{ secrets.STRIPE_SECRET_KEY }}"
 
+              # ----- ensure docker is up -----
+              if ! command -v docker >/dev/null 2>&1; then
+                sudo yum update -y
+                sudo amazon-linux-extras enable docker
+                sudo yum install -y docker
+                sudo systemctl enable docker
+                sudo systemctl start docker
+                sudo usermod -a -G docker ec2-user || true
+              else
+                sudo systemctl start docker || true
+              fi
 
+              # ----- login if your images are private (safe if public too) -----
+              echo "$DOCKER_TOKEN" | sudo docker login -u "$DOCKER_USER" --password-stdin || true
 
+              # ----- pull newest images -----
+              sudo docker pull "$BACKEND_IMAGE"
+              sudo docker pull "$FRONTEND_IMAGE"
 
+              # ----- stop & remove old containers -----
+              sudo docker rm -f backend || true
+              sudo docker rm -f frontend || true
 
+              # ----- run backend (port 9000) -----
+              sudo docker run -d --name backend \
+                --restart unless-stopped \
+                -e NODE_ENV=production \
+                -e BACKEND_PORT=9000 \
+                -e MONGO_URI="$MONGO_URI" \
+                -e STRIPE_SECRET_KEY="$STRIPE_SECRET_KEY" \
+                -p 9000:9000 \
+                "$BACKEND_IMAGE"
 
-      # - name: Deploy over SSH
-      #   uses: appleboy/ssh-action@v1.0.3
-      #   with:
-      #     host: ${{ secrets.EC2_HOST }}
-      #     username: http-ssh
-      #     key: ${{ secrets.EC2_SSH_KEY }}
-      #     port: 22
-      #     script_stop: true
-      #     envs: |
-      #       DOCKER_USER,DOCKER_TOKEN,BACKEND_IMAGE,FRONTEND_IMAGE,MONGO_URI,STRIPE_SECRET_KEY
-      #     command_timeout: 30m
-      #     script: |
-      #       set -Eeuo pipefail
+              # ----- run frontend (container listens on 8080; expose public 80) -----
+              sudo docker run -d --name frontend \
+                --restart unless-stopped \
+                -e NODE_ENV=production \
+                -p 80:8080 \
+                "$FRONTEND_IMAGE"
 
-      #       # ----- env from GH secrets -----
-      #       DOCKER_USER="${{ secrets.DOCKER_USERNAME }}"
-      #       DOCKER_TOKEN="${{ secrets.DOCKER_ACCESS_KEY }}"
-      #       BACKEND_IMAGE="${{ secrets.DOCKER_USERNAME }}/dental-backend:latest"
-      #       FRONTEND_IMAGE="${{ secrets.DOCKER_USERNAME }}/dental-frontend:latest"
-      #       MONGO_URI="${{ secrets.MONGO_URI }}"
-      #       STRIPE_SECRET_KEY="${{ secrets.STRIPE_SECRET_KEY }}"
-
-      #       # ----- ensure docker is up -----
-      #       if ! command -v docker >/dev/null 2>&1; then
-      #         sudo yum update -y
-      #         sudo amazon-linux-extras enable docker
-      #         sudo yum install -y docker
-      #         sudo systemctl enable docker
-      #         sudo systemctl start docker
-      #         sudo usermod -a -G docker ec2-user || true
-      #       else
-      #         sudo systemctl start docker || true
-      #       fi
-
-      #       # ----- login if your images are private (safe if public too) -----
-      #       echo "$DOCKER_TOKEN" | sudo docker login -u "$DOCKER_USER" --password-stdin || true
-
-      #       # ----- pull newest images -----
-      #       sudo docker pull "$BACKEND_IMAGE"
-      #       sudo docker pull "$FRONTEND_IMAGE"
-
-      #       # ----- stop & remove old containers -----
-      #       sudo docker rm -f backend || true
-      #       sudo docker rm -f frontend || true
-
-      #       # ----- run backend (port 9000) -----
-      #       sudo docker run -d --name backend \
-      #         --restart unless-stopped \
-      #         -e NODE_ENV=production \
-      #         -e BACKEND_PORT=9000 \
-      #         -e MONGO_URI="$MONGO_URI" \
-      #         -e STRIPE_SECRET_KEY="$STRIPE_SECRET_KEY" \
-      #         -p 9000:9000 \
-      #         "$BACKEND_IMAGE"
-
-      #       # ----- run frontend (container listens on 8080; expose public 80) -----
-      #       sudo docker run -d --name frontend \
-      #         --restart unless-stopped \
-      #         -e NODE_ENV=production \
-      #         -p 80:8080 \
-      #         "$FRONTEND_IMAGE"
-
-      #       # ----- health check -----
-      #       sleep 3
-      #       sudo docker ps
+              # ----- health check -----
+              sleep 3
+              sudo docker ps
