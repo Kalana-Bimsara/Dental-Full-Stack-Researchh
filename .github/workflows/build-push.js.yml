@@ -84,73 +84,102 @@ jobs:
           # nuke everything dangling (including build cache)
           docker system prune -af --volumes || true
 
+
   deploy-ec2-Testing-environment:
     name: Deploy New images to Testing environment EC2 via SSH
     needs: multiarch-build-publish-to-docker-hub
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy over SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: http-ssh
-          key: ${{ secrets.EC2_SSH_KEY }}
-          port: 22
-          script_stop: true
-          envs: |
-            DOCKER_USER,DOCKER_TOKEN,BACKEND_IMAGE,FRONTEND_IMAGE,MONGO_URI,STRIPE_SECRET_KEY
-          command_timeout: 30m
-          script: |
-            set -Eeuo pipefail
 
-            # ----- env from GH secrets -----
-            DOCKER_USER="${{ secrets.DOCKER_USERNAME }}"
-            DOCKER_TOKEN="${{ secrets.DOCKER_ACCESS_KEY }}"
-            BACKEND_IMAGE="${{ secrets.DOCKER_USERNAME }}/dental-backend:latest"
-            FRONTEND_IMAGE="${{ secrets.DOCKER_USERNAME }}/dental-frontend:latest"
-            MONGO_URI="${{ secrets.MONGO_URI }}"
-            STRIPE_SECRET_KEY="${{ secrets.STRIPE_SECRET_KEY }}"
+        - name: Prepare SSH key
+          run: |
+            mkdir -p ~/.ssh
+            echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_ec2.pem
+            chmod 600 ~/.ssh/id_ec2.pem
+            # validate the PEM (this fails if it’s malformed)
+            ssh-keygen -y -f ~/.ssh/id_ec2.pem >/dev/null
 
-            # ----- ensure docker is up -----
-            if ! command -v docker >/dev/null 2>&1; then
-              sudo yum update -y
-              sudo amazon-linux-extras enable docker
-              sudo yum install -y docker
-              sudo systemctl enable docker
-              sudo systemctl start docker
-              sudo usermod -a -G docker ec2-user || true
-            else
-              sudo systemctl start docker || true
-            fi
+        - name: Deploy to EC2 over SSH
+          uses: appleboy/ssh-action@v1.0.3
+          with:
+            host: ${{ secrets.EC2_HOST }}   # public IP or DNS
+            username: ec2-user              # Amazon Linux; use ubuntu for Ubuntu AMIs
+            key_path: ~/.ssh/id_ec2.pem
+            script_stop: true
+            command_timeout: 30m
+            script: |
+              echo "Connected. Docker version:"
+              docker --version || (sudo yum install -y docker && sudo systemctl start docker)
+              # ... your redeploy commands ...
 
-            # ----- login if your images are private (safe if public too) -----
-            echo "$DOCKER_TOKEN" | sudo docker login -u "$DOCKER_USER" --password-stdin || true
 
-            # ----- pull newest images -----
-            sudo docker pull "$BACKEND_IMAGE"
-            sudo docker pull "$FRONTEND_IMAGE"
 
-            # ----- stop & remove old containers -----
-            sudo docker rm -f backend || true
-            sudo docker rm -f frontend || true
 
-            # ----- run backend (port 9000) -----
-            sudo docker run -d --name backend \
-              --restart unless-stopped \
-              -e NODE_ENV=production \
-              -e BACKEND_PORT=9000 \
-              -e MONGO_URI="$MONGO_URI" \
-              -e STRIPE_SECRET_KEY="$STRIPE_SECRET_KEY" \
-              -p 9000:9000 \
-              "$BACKEND_IMAGE"
 
-            # ----- run frontend (container listens on 8080; expose public 80) -----
-            sudo docker run -d --name frontend \
-              --restart unless-stopped \
-              -e NODE_ENV=production \
-              -p 80:8080 \
-              "$FRONTEND_IMAGE"
 
-            # ----- health check -----
-            sleep 3
-            sudo docker ps
+
+      # - name: Deploy over SSH
+      #   uses: appleboy/ssh-action@v1.0.3
+      #   with:
+      #     host: ${{ secrets.EC2_HOST }}
+      #     username: http-ssh
+      #     key: ${{ secrets.EC2_SSH_KEY }}
+      #     port: 22
+      #     script_stop: true
+      #     envs: |
+      #       DOCKER_USER,DOCKER_TOKEN,BACKEND_IMAGE,FRONTEND_IMAGE,MONGO_URI,STRIPE_SECRET_KEY
+      #     command_timeout: 30m
+      #     script: |
+      #       set -Eeuo pipefail
+
+      #       # ----- env from GH secrets -----
+      #       DOCKER_USER="${{ secrets.DOCKER_USERNAME }}"
+      #       DOCKER_TOKEN="${{ secrets.DOCKER_ACCESS_KEY }}"
+      #       BACKEND_IMAGE="${{ secrets.DOCKER_USERNAME }}/dental-backend:latest"
+      #       FRONTEND_IMAGE="${{ secrets.DOCKER_USERNAME }}/dental-frontend:latest"
+      #       MONGO_URI="${{ secrets.MONGO_URI }}"
+      #       STRIPE_SECRET_KEY="${{ secrets.STRIPE_SECRET_KEY }}"
+
+      #       # ----- ensure docker is up -----
+      #       if ! command -v docker >/dev/null 2>&1; then
+      #         sudo yum update -y
+      #         sudo amazon-linux-extras enable docker
+      #         sudo yum install -y docker
+      #         sudo systemctl enable docker
+      #         sudo systemctl start docker
+      #         sudo usermod -a -G docker ec2-user || true
+      #       else
+      #         sudo systemctl start docker || true
+      #       fi
+
+      #       # ----- login if your images are private (safe if public too) -----
+      #       echo "$DOCKER_TOKEN" | sudo docker login -u "$DOCKER_USER" --password-stdin || true
+
+      #       # ----- pull newest images -----
+      #       sudo docker pull "$BACKEND_IMAGE"
+      #       sudo docker pull "$FRONTEND_IMAGE"
+
+      #       # ----- stop & remove old containers -----
+      #       sudo docker rm -f backend || true
+      #       sudo docker rm -f frontend || true
+
+      #       # ----- run backend (port 9000) -----
+      #       sudo docker run -d --name backend \
+      #         --restart unless-stopped \
+      #         -e NODE_ENV=production \
+      #         -e BACKEND_PORT=9000 \
+      #         -e MONGO_URI="$MONGO_URI" \
+      #         -e STRIPE_SECRET_KEY="$STRIPE_SECRET_KEY" \
+      #         -p 9000:9000 \
+      #         "$BACKEND_IMAGE"
+
+      #       # ----- run frontend (container listens on 8080; expose public 80) -----
+      #       sudo docker run -d --name frontend \
+      #         --restart unless-stopped \
+      #         -e NODE_ENV=production \
+      #         -p 80:8080 \
+      #         "$FRONTEND_IMAGE"
+
+      #       # ----- health check -----
+      #       sleep 3
+      #       sudo docker ps
