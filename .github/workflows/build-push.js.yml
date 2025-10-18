@@ -14,6 +14,10 @@ jobs:
       contents: read
       packages: write
 
+    # ✅ Expose START_TS so the deploy job can read it
+    outputs:
+      START_TS: ${{ steps.lt_start.outputs.START_TS }}
+
     strategy:
       fail-fast: false
       matrix:
@@ -30,6 +34,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      # ✅ DORA start = time the commit landed on main (merge commit time)
+      - name: Capture DORA start timestamp (merge commit time on main)
+        id: lt_start
+        run: echo "START_TS=$(git show -s --format=%cI $GITHUB_SHA)" >> "$GITHUB_OUTPUT"
 
       - name: Set up QEMU (cross-arch)
         uses: docker/setup-qemu-action@v3
@@ -103,8 +112,6 @@ jobs:
               DOCKER_USER,DOCKER_TOKEN,BACKEND_IMAGE,FRONTEND_IMAGE,MONGO_URI,STRIPE_SECRET_KEY
             command_timeout: 30m
             script: |
-             
-
               # ----- pull newest images -----
               sudo docker pull "${{ secrets.DOCKER_USERNAME }}/dental-backend:latest"
               sudo docker pull "${{ secrets.DOCKER_USERNAME }}/dental-frontend:latest"
@@ -134,3 +141,44 @@ jobs:
               sleep 3
               sudo docker ps
 
+        # ✅ DORA end = right after deploy completes
+        - name: Stamp end time (UTC)
+          id: lt_end
+          run: echo "END_TS=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
+
+        # ✅ Compute Lead Time and save to artifact (minimal; UTC)
+        - name: Compute Lead Time and save
+          run: |
+            python - << 'PY'
+            from datetime import datetime
+            import os, csv
+
+            start = os.environ["START_TS"]  # from build job output
+            end   = os.environ["END_TS"]    # from this job
+
+            def parse(ts):
+              # Normalize Z to +0000 for strptime
+              return datetime.strptime(ts.replace("Z","+0000"), "%Y-%m-%dT%H:%M:%S%z")
+
+            s = parse(start)
+            e = parse(end)
+            minutes = (e - s).total_seconds() / 60.0
+            print(f"LeadTimeMinutes={minutes:.2f}")
+
+            rows = [
+              ["repo","sha","start_ts","end_ts","lead_time_min"],
+              [os.environ["GITHUB_REPOSITORY"], os.environ["GITHUB_SHA"], start, end, f"{minutes:.2f}"]
+            ]
+            with open("lead_time.csv","w", newline="") as f:
+              csv.writer(f).writerows(rows)
+            PY
+          env:
+            START_TS: ${{ needs.multiarch-build-publish-to-docker-hub.outputs.START_TS }}
+            END_TS: ${{ steps.lt_end.outputs.END_TS }}
+
+        - name: Upload Lead Time artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: lead-time
+            path: lead_time.csv
+            if-no-files-found: warn
