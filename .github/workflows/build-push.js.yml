@@ -147,27 +147,39 @@ jobs:
           run: echo "END_TS=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
 
         # ✅ Compute Lead Time and save to artifact (minimal; UTC)
-        - name: Compute Lead Time and save
+        - name: Compute Lead Time and save (Sri Lanka time)
           run: |
             python - << 'PY'
-            from datetime import datetime
+            from datetime import datetime, timezone
+            from zoneinfo import ZoneInfo
             import os, csv
 
-            start = os.environ["START_TS"]  # from build job output
-            end   = os.environ["END_TS"]    # from this job
+            start_raw = os.environ["START_TS"]
+            end_raw   = os.environ["END_TS"]
 
-            def parse(ts):
-              # Normalize Z to +0000 for strptime
-              return datetime.strptime(ts.replace("Z","+0000"), "%Y-%m-%dT%H:%M:%S%z")
+            def to_dt(ts: str) -> datetime:
+              # accept both "...Z" and "...+HH:MM"
+              ts = ts.replace("Z", "+00:00")
+              return datetime.fromisoformat(ts)
 
-            s = parse(start)
-            e = parse(end)
-            minutes = (e - s).total_seconds() / 60.0
-            print(f"LeadTimeMinutes={minutes:.2f}")
+            s = to_dt(start_raw)
+            e = to_dt(end_raw)
 
+            # lead time (independent of display timezone)
+            lead_minutes = (e - s).total_seconds() / 60.0
+
+            # display both in Sri Lanka time
+            SL = ZoneInfo("Asia/Colombo")
+            s_local = s.astimezone(SL)
+            e_local = e.astimezone(SL)
+
+            print(f"LeadTimeMinutes={lead_minutes:.2f}")
+
+            # keep your original headers but write local times
             rows = [
               ["repo","sha","start_ts","end_ts","lead_time_min"],
-              [os.environ["GITHUB_REPOSITORY"], os.environ["GITHUB_SHA"], start, end, f"{minutes:.2f}"]
+              [os.environ["GITHUB_REPOSITORY"], os.environ["GITHUB_SHA"],
+              s_local.isoformat(), e_local.isoformat(), f"{lead_minutes:.2f}"]
             ]
             with open("lead_time.csv","w", newline="") as f:
               csv.writer(f).writerows(rows)
@@ -175,6 +187,7 @@ jobs:
           env:
             START_TS: ${{ needs.multiarch-build-publish-to-docker-hub.outputs.START_TS }}
             END_TS: ${{ steps.lt_end.outputs.END_TS }}
+
 
         - name: Upload Lead Time artifact
           uses: actions/upload-artifact@v4
