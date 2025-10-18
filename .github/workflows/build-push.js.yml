@@ -65,7 +65,7 @@ jobs:
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.file }}
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/arm64          # build only ARM64
           push: true
           tags: |
             ${{ env.USER_LC }}/${{ matrix.repo_suffix }}:latest
@@ -147,7 +147,6 @@ jobs:
           end   = os.environ["END_TS"]    # from this job
 
           def parse(ts):
-            # Normalize Z to +0000 for strptime
             return datetime.strptime(ts.replace("Z","+0000"), "%Y-%m-%dT%H:%M:%S%z")
 
           s = parse(start)
