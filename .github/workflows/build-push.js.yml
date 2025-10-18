@@ -3,18 +3,20 @@ name: Full-stack CI/CD with Docker Compose
 on:
   push:
     branches:
-        - main  
+      - main
+    # don't retrigger the workflow when we commit the metrics file
+    paths-ignore:
+      - 'metrics/**'
 
 jobs:
   multiarch-build-publish-to-docker-hub:
-    
     name: Build & Publish (amd64+arm64) to Docker Hub
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
 
-    # ✅ Expose START_TS so the deploy job can read it
+    # Expose START_TS so the deploy job can read it
     outputs:
       START_TS: ${{ steps.lt_start.outputs.START_TS }}
 
@@ -35,7 +37,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ✅ DORA start = time the commit landed on main (merge commit time)
+      # DORA start = time the commit landed on main (merge commit time)
       - name: Capture DORA start timestamp (merge commit time on main)
         id: lt_start
         run: echo "START_TS=$(git show -s --format=%cI $GITHUB_SHA)" >> "$GITHUB_OUTPUT"
@@ -75,22 +77,15 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-    #clean the environment
+      # clean the environment
       - name: Cleanup containers/images/volumes
         if: always()
         run: |
-          # stop & remove any leftover containers (none if --rm was used)
           docker ps -aq | xargs -r docker rm -f
-
-          # remove our image explicitly (ignore errors if not present)
           docker rmi -f myorg/backend:ci || true
-
-          # prune dangling images, networks, and volumes
           docker image prune -af || true
           docker network prune -f || true
           docker volume prune -f || true
-
-          # nuke everything dangling (including build cache)
           docker system prune -af --volumes || true
 
 
@@ -98,101 +93,123 @@ jobs:
     name: Deploy New images to Testing environment EC2 via SSH
     needs: multiarch-build-publish-to-docker-hub
     runs-on: ubuntu-latest
+    # allow committing the metrics CSV back to the repo
+    permissions:
+      contents: write
+
     steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script_stop: true
+          envs: |
+            DOCKER_USER,DOCKER_TOKEN,BACKEND_IMAGE,FRONTEND_IMAGE,MONGO_URI,STRIPE_SECRET_KEY
+          command_timeout: 30m
+          script: |
+            # ----- pull newest images -----
+            sudo docker pull "${{ secrets.DOCKER_USERNAME }}/dental-backend:latest"
+            sudo docker pull "${{ secrets.DOCKER_USERNAME }}/dental-frontend:latest"
 
-        - name: Deploy over SSH
-          uses: appleboy/ssh-action@v1.0.3
-          with:
-            host: ${{ secrets.EC2_HOST }}
-            username: ec2-user
-            key: ${{ secrets.EC2_SSH_KEY }}
-            port: 22
-            script_stop: true
-            envs: |
-              DOCKER_USER,DOCKER_TOKEN,BACKEND_IMAGE,FRONTEND_IMAGE,MONGO_URI,STRIPE_SECRET_KEY
-            command_timeout: 30m
-            script: |
-              # ----- pull newest images -----
-              sudo docker pull "${{ secrets.DOCKER_USERNAME }}/dental-backend:latest"
-              sudo docker pull "${{ secrets.DOCKER_USERNAME }}/dental-frontend:latest"
+            # ----- stop & remove old containers -----
+            sudo docker rm -f backend || true
+            sudo docker rm -f frontend || true
 
-              # ----- stop & remove old containers -----
-              sudo docker rm -f backend || true
-              sudo docker rm -f frontend || true
+            # ----- run backend (port 9000) -----
+            sudo docker run -d --name backend \
+              --restart unless-stopped \
+              -e NODE_ENV=production \
+              -e BACKEND_PORT=9000 \
+              -e MONGO_URI="${{ secrets.MONGO_URI }}" \
+              -e STRIPE_SECRET_KEY="${{ secrets.STRIPE_SECRET_KEY }}" \
+              -p 9000:9000 \
+              "${{ secrets.DOCKER_USERNAME }}/dental-backend:latest"
 
-              # ----- run backend (port 9000) -----
-              sudo docker run -d --name backend \
-                --restart unless-stopped \
-                -e NODE_ENV=production \
-                -e BACKEND_PORT=9000 \
-                -e MONGO_URI="${{ secrets.MONGO_URI }}" \
-                -e STRIPE_SECRET_KEY="${{ secrets.STRIPE_SECRET_KEY }}" \
-                -p 9000:9000 \
-                "${{ secrets.DOCKER_USERNAME }}/dental-backend:latest"
+            # ----- run frontend (container listens on 8080; expose public 80) -----
+            sudo docker run -d --name frontend \
+              --restart unless-stopped \
+              -e NODE_ENV=production \
+              -p 80:8080 \
+              "${{ secrets.DOCKER_USERNAME }}/dental-frontend:latest"
 
-              # ----- run frontend (container listens on 8080; expose public 80) -----
-              sudo docker run -d --name frontend \
-                --restart unless-stopped \
-                -e NODE_ENV=production \
-                -p 80:8080 \
-                "${{ secrets.DOCKER_USERNAME }}/dental-frontend:latest"
+            # ----- health check -----
+            sleep 3
+            sudo docker ps
 
-              # ----- health check -----
-              sleep 3
-              sudo docker ps
+      # DORA end = right after deploy completes
+      - name: Stamp end time (UTC)
+        id: lt_end
+        run: echo "END_TS=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
 
-        # ✅ DORA end = right after deploy completes
-        - name: Stamp end time (UTC)
-          id: lt_end
-          run: echo "END_TS=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
+      # Compute Lead Time and save (Sri Lanka time)
+      - name: Compute Lead Time and save (Sri Lanka time)
+        run: |
+          python - << 'PY'
+          from datetime import datetime, timezone
+          from zoneinfo import ZoneInfo
+          import os, csv
 
-        # ✅ Compute Lead Time and save to artifact (minimal; UTC)
-        - name: Compute Lead Time and save (Sri Lanka time)
-          run: |
-            python - << 'PY'
-            from datetime import datetime, timezone
-            from zoneinfo import ZoneInfo
-            import os, csv
+          start_raw = os.environ["START_TS"]
+          end_raw   = os.environ["END_TS"]
 
-            start_raw = os.environ["START_TS"]
-            end_raw   = os.environ["END_TS"]
+          def to_dt(ts: str) -> datetime:
+            ts = ts.replace("Z", "+00:00")
+            return datetime.fromisoformat(ts)
 
-            def to_dt(ts: str) -> datetime:
-              # accept both "...Z" and "...+HH:MM"
-              ts = ts.replace("Z", "+00:00")
-              return datetime.fromisoformat(ts)
+          s = to_dt(start_raw)
+          e = to_dt(end_raw)
 
-            s = to_dt(start_raw)
-            e = to_dt(end_raw)
+          lead_minutes = (e - s).total_seconds() / 60.0
 
-            # lead time (independent of display timezone)
-            lead_minutes = (e - s).total_seconds() / 60.0
+          SL = ZoneInfo("Asia/Colombo")
+          s_local = s.astimezone(SL)
+          e_local = e.astimezone(SL)
 
-            # display both in Sri Lanka time
-            SL = ZoneInfo("Asia/Colombo")
-            s_local = s.astimezone(SL)
-            e_local = e.astimezone(SL)
+          print(f"LeadTimeMinutes={lead_minutes:.2f}")
 
-            print(f"LeadTimeMinutes={lead_minutes:.2f}")
+          rows = [
+            ["repo","sha","start_ts","end_ts","lead_time_min"],
+            [os.environ["GITHUB_REPOSITORY"], os.environ["GITHUB_SHA"],
+             s_local.isoformat(), e_local.isoformat(), f"{lead_minutes:.2f}"]
+          ]
+          with open("lead_time.csv","w", newline="") as f:
+            csv.writer(f).writerows(rows)
+          PY
+        env:
+          START_TS: ${{ needs.multiarch-build-publish-to-docker-hub.outputs.START_TS }}
+          END_TS: ${{ steps.lt_end.outputs.END_TS }}
 
-            # keep your original headers but write local times
-            rows = [
-              ["repo","sha","start_ts","end_ts","lead_time_min"],
-              [os.environ["GITHUB_REPOSITORY"], os.environ["GITHUB_SHA"],
-              s_local.isoformat(), e_local.isoformat(), f"{lead_minutes:.2f}"]
-            ]
-            with open("lead_time.csv","w", newline="") as f:
-              csv.writer(f).writerows(rows)
-            PY
-          env:
-            START_TS: ${{ needs.multiarch-build-publish-to-docker-hub.outputs.START_TS }}
-            END_TS: ${{ steps.lt_end.outputs.END_TS }}
+      # Keep the artifact (optional)
+      - name: Upload Lead Time artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lead-time
+          path: lead_time.csv
+          if-no-files-found: warn
 
+      # --- Publish the row into the repo (metrics/lead_time.csv) ---
+      - name: Checkout repo (for metrics commit)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-        - name: Upload Lead Time artifact
-          uses: actions/upload-artifact@v4
-          with:
-            name: lead-time
-            path: lead_time.csv
-            if-no-files-found: warn
-######
+      - name: Append latest row into metrics/lead_time.csv
+        run: |
+          mkdir -p metrics
+          if [ ! -f metrics/lead_time.csv ]; then
+            echo "repo,sha,start_ts,end_ts,lead_time_min" > metrics/lead_time.csv
+          fi
+          tail -n +2 lead_time.csv >> metrics/lead_time.csv
+
+      - name: Commit metrics to repo (skip CI)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add metrics/lead_time.csv
+          git commit -m "[metrics] append lead time [skip ci]" || echo "No changes to commit"
+          git push
