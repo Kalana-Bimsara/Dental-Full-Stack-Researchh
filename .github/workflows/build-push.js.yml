@@ -3,16 +3,19 @@ name: Full-stack CI/CD with Docker Compose
 on:
   push:
     branches:
-        - main  
+      - main
 
 jobs:
   multiarch-build-publish-to-docker-hub:
-    
     name: Build & Publish (amd64+arm64) to Docker Hub
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+
+    # Expose START_TS to the next job
+    outputs:
+      START_TS: ${{ steps.lt_start.outputs.START_TS }}
 
     strategy:
       fail-fast: false
@@ -25,11 +28,16 @@ jobs:
           - name: frontend
             context: app/frontend
             file: app/frontend/Dockerfile.nginx.prod.yml
-            repo_suffix: dental-frontend 
-            
+            repo_suffix: dental-frontend
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      # DORA start: timestamp of the commit that landed on main (merge commit time)
+      - name: Capture DORA start timestamp (merge commit time on main)
+        id: lt_start
+        run: echo "START_TS=$(git show -s --format=%cI $GITHUB_SHA)" >> "$GITHUB_OUTPUT"
 
       - name: Set up QEMU (cross-arch)
         uses: docker/setup-qemu-action@v3
@@ -66,71 +74,101 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-    #clean the environment
+      # clean the environment
       - name: Cleanup containers/images/volumes
         if: always()
         run: |
-          # stop & remove any leftover containers (none if --rm was used)
           docker ps -aq | xargs -r docker rm -f
-
-          # remove our image explicitly (ignore errors if not present)
           docker rmi -f myorg/backend:ci || true
-
-          # prune dangling images, networks, and volumes
           docker image prune -af || true
           docker network prune -f || true
           docker volume prune -f || true
-
-          # nuke everything dangling (including build cache)
           docker system prune -af --volumes || true
-
 
   deploy-ec2-Testing-environment:
     name: Deploy New images to Testing environment EC2 via SSH
     needs: multiarch-build-publish-to-docker-hub
     runs-on: ubuntu-latest
     steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script_stop: true
+          envs: |
+            DOCKER_USER,DOCKER_TOKEN,BACKEND_IMAGE,FRONTEND_IMAGE,MONGO_URI,STRIPE_SECRET_KEY
+          command_timeout: 30m
+          script: |
+            # ----- pull newest images -----
+            sudo docker pull "${{ secrets.DOCKER_USERNAME }}/dental-backend:latest"
+            sudo docker pull "${{ secrets.DOCKER_USERNAME }}/dental-frontend:latest"
 
-        - name: Deploy over SSH
-          uses: appleboy/ssh-action@v1.0.3
-          with:
-            host: ${{ secrets.EC2_HOST }}
-            username: ec2-user
-            key: ${{ secrets.EC2_SSH_KEY }}
-            port: 22
-            script_stop: true
-            envs: |
-              DOCKER_USER,DOCKER_TOKEN,BACKEND_IMAGE,FRONTEND_IMAGE,MONGO_URI,STRIPE_SECRET_KEY
-            command_timeout: 30m
-            script: |
-             
+            # ----- stop & remove old containers -----
+            sudo docker rm -f backend || true
+            sudo docker rm -f frontend || true
 
-              # ----- pull newest images -----
-              sudo docker pull "${{ secrets.DOCKER_USERNAME }}/dental-backend:latest"
-              sudo docker pull "${{ secrets.DOCKER_USERNAME }}/dental-frontend:latest"
+            # ----- run backend (port 9000) -----
+            sudo docker run -d --name backend \
+              --restart unless-stopped \
+              -e NODE_ENV=production \
+              -e BACKEND_PORT=9000 \
+              -e MONGO_URI="${{ secrets.MONGO_URI }}" \
+              -e STRIPE_SECRET_KEY="${{ secrets.STRIPE_SECRET_KEY }}" \
+              -p 9000:9000 \
+              "${{ secrets.DOCKER_USERNAME }}/dental-backend:latest"
 
-              # ----- stop & remove old containers -----
-              sudo docker rm -f backend || true
-              sudo docker rm -f frontend || true
+            # ----- run frontend (container listens on 8080; expose public 80) -----
+            sudo docker run -d --name frontend \
+              --restart unless-stopped \
+              -e NODE_ENV=production \
+              -p 80:8080 \
+              "${{ secrets.DOCKER_USERNAME }}/dental-frontend:latest"
 
-              # ----- run backend (port 9000) -----
-              sudo docker run -d --name backend \
-                --restart unless-stopped \
-                -e NODE_ENV=production \
-                -e BACKEND_PORT=9000 \
-                -e MONGO_URI="${{ secrets.MONGO_URI }}" \
-                -e STRIPE_SECRET_KEY="${{ secrets.STRIPE_SECRET_KEY }}" \
-                -p 9000:9000 \
-                "${{ secrets.DOCKER_USERNAME }}/dental-backend:latest"
+            # ----- health check -----
+            sleep 3
+            sudo docker ps
 
-              # ----- run frontend (container listens on 8080; expose public 80) -----
-              sudo docker run -d --name frontend \
-                --restart unless-stopped \
-                -e NODE_ENV=production \
-                -p 80:8080 \
-                "${{ secrets.DOCKER_USERNAME }}/dental-frontend:latest"
+      # DORA end: stamp end time after deploy completes
+      - name: Stamp end time (UTC)
+        id: lt_end
+        run: echo "END_TS=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
 
-              # ----- health check -----
-              sleep 3
-              sudo docker ps
+      # Compute Lead Time and save to artifact
+      - name: Compute Lead Time and save
+        run: |
+          python - << 'PY'
+          from datetime import datetime
+          import os, csv
 
+          start = os.environ["START_TS"]  # from job1 output
+          end   = os.environ["END_TS"]    # from this job
+
+          def parse(ts):
+            # Normalize Z to +0000 for strptime
+            return datetime.strptime(ts.replace("Z","+0000"), "%Y-%m-%dT%H:%M:%S%z")
+
+          s = parse(start)
+          e = parse(end)
+          minutes = (e - s).total_seconds() / 60.0
+          print(f"LeadTimeMinutes={minutes:.2f}")
+
+          rows = [
+            ["repo","sha","start_ts","end_ts","lead_time_min"],
+            [os.environ["GITHUB_REPOSITORY"], os.environ["GITHUB_SHA"], start, end, f"{minutes:.2f}"]
+          ]
+          with open("lead_time.csv","w", newline="") as f:
+            csv.writer(f).writerows(rows)
+          PY
+        env:
+          START_TS: ${{ needs.multiarch-build-publish-to-docker-hub.outputs.START_TS }}
+          END_TS: ${{ steps.lt_end.outputs.END_TS }}
+
+      - name: Upload Lead Time artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lead-time
+          path: lead_time.csv
+          if-no-files-found: warn
