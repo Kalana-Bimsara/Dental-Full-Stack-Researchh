@@ -190,26 +190,32 @@ jobs:
           path: lead_time.csv
           if-no-files-found: warn
 
-      # --- Publish the row into the repo (metrics/lead_time.csv) ---
+      # --- Save each run as its own CSV file in the repo ---
       - name: Checkout repo (for metrics commit)
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          path: repo  # checkout into subfolder so lead_time.csv in CWD isn't lost
 
-      - name: Append latest row into metrics/lead_time.csv
+      - name: Write unique metrics file
+        env:
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          SHA: ${{ github.sha }}
         run: |
-          mkdir -p metrics
-          if [ ! -f metrics/lead_time.csv ]; then
-            echo "repo,sha,start_ts,end_ts,lead_time_min" > metrics/lead_time.csv
-          fi
-          tail -n +2 lead_time.csv >> metrics/lead_time.csv
+          mkdir -p repo/metrics/lead_time_runs
+          SHORT_SHA=${SHA::12}
+          OUT="repo/metrics/lead_time_runs/lead_time_${SHORT_SHA}_run${RUN_ID}_a${RUN_ATTEMPT}.csv"
+          cp lead_time.csv "$OUT"
+          echo "Saved $OUT"
 
-      - name: Commit metrics to repo (skip CI)
+      - name: Commit metrics file (skip CI)
+        working-directory: repo
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add metrics/lead_time.csv
-          git commit -m "[metrics] append lead time [skip ci]" || echo "No changes to commit"
+          git add metrics/lead_time_runs/*.csv
+          git commit -m "[metrics] add lead time file per run [skip ci]" || echo "No changes to commit"
           git push
