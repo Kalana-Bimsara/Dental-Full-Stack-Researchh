@@ -137,27 +137,50 @@ jobs:
         run: echo "END_TS=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
 
       # Compute Lead Time and save to artifact
-      - name: Compute Lead Time and save
+      - name: Compute Lead Time and save (UTC + local)
         run: |
           python - << 'PY'
-          from datetime import datetime
+          from datetime import datetime, timezone
+          from zoneinfo import ZoneInfo   # stdlib in Python 3.9+
           import os, csv
 
-          start = os.environ["START_TS"]  # from job1 output
-          end   = os.environ["END_TS"]    # from this job
+          # Inputs from previous steps/jobs
+          start_raw = os.environ["START_TS"]  # e.g., 2025-10-18T11:53:44+05:30 (from git %cI)
+          end_raw   = os.environ["END_TS"]    # e.g., 2025-10-18T06:27:08Z (UTC)
 
-          def parse(ts):
-            # Normalize Z to +0000 for strptime
-            return datetime.strptime(ts.replace("Z","+0000"), "%Y-%m-%dT%H:%M:%S%z")
+          # Robust ISO8601 parsing (handle trailing 'Z')
+          def to_dt(ts: str) -> datetime:
+            ts = ts.replace("Z", "+00:00")
+            return datetime.fromisoformat(ts)
 
-          s = parse(start)
-          e = parse(end)
-          minutes = (e - s).total_seconds() / 60.0
-          print(f"LeadTimeMinutes={minutes:.2f}")
+          s = to_dt(start_raw)   # aware datetime with its own offset
+          e = to_dt(end_raw)     # aware datetime (UTC)
 
+          # Compute lead time in minutes
+          lead_minutes = (e - s).total_seconds() / 60.0
+
+          # Convert both to Sri Lanka time (+05:30)
+          SL = ZoneInfo("Asia/Colombo")
+          s_local = s.astimezone(SL)
+          e_local = e.astimezone(SL)
+
+          # Also normalize UTC ISO strings for clarity
+          s_utc = s.astimezone(timezone.utc)
+          e_utc = e.astimezone(timezone.utc)
+
+          print(f"LeadTimeMinutes={lead_minutes:.2f}")
+
+          # Write CSV (include both UTC and local for readability)
           rows = [
-            ["repo","sha","start_ts","end_ts","lead_time_min"],
-            [os.environ["GITHUB_REPOSITORY"], os.environ["GITHUB_SHA"], start, end, f"{minutes:.2f}"]
+            ["repo","sha",
+            "start_ts_utc","end_ts_utc",
+            "start_ts_local","end_ts_local",
+            "lead_time_min"],
+            [os.environ["GITHUB_REPOSITORY"], os.environ["GITHUB_SHA"],
+            s_utc.isoformat().replace("+00:00","Z"),
+            e_utc.isoformat().replace("+00:00","Z"),
+            s_local.isoformat(), e_local.isoformat(),
+            f"{lead_minutes:.2f}"]
           ]
           with open("lead_time.csv","w", newline="") as f:
             csv.writer(f).writerows(rows)
@@ -165,6 +188,7 @@ jobs:
         env:
           START_TS: ${{ needs.multiarch-build-publish-to-docker-hub.outputs.START_TS }}
           END_TS: ${{ steps.lt_end.outputs.END_TS }}
+
 
       - name: Upload Lead Time artifact
         uses: actions/upload-artifact@v4
