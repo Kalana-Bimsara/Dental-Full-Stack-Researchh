@@ -13,7 +13,7 @@ jobs:
       contents: read
       packages: write
 
-    # Expose START_TS to the deploy job
+    # Expose START_TS to the next job
     outputs:
       START_TS: ${{ steps.lt_start.outputs.START_TS }}
 
@@ -34,12 +34,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # DORA start (merge commit time on main)
+      # DORA start: timestamp of the commit that landed on main (merge commit time)
       - name: Capture DORA start timestamp (merge commit time on main)
         id: lt_start
         run: echo "START_TS=$(git show -s --format=%cI $GITHUB_SHA)" >> "$GITHUB_OUTPUT"
 
-      # Enable cross-arch building on amd64 runner
       - name: Set up QEMU (cross-arch)
         uses: docker/setup-qemu-action@v3
 
@@ -66,7 +65,7 @@ jobs:
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.file }}
-          platforms: linux/amd64,linux/arm64   # ← build both architectures on amd64 runner
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             ${{ env.USER_LC }}/${{ matrix.repo_suffix }}:latest
@@ -75,6 +74,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      # clean the environment
       - name: Cleanup containers/images/volumes
         if: always()
         run: |
@@ -102,15 +102,15 @@ jobs:
             DOCKER_USER,DOCKER_TOKEN,BACKEND_IMAGE,FRONTEND_IMAGE,MONGO_URI,STRIPE_SECRET_KEY
           command_timeout: 30m
           script: |
-            # pull newest images
+            # ----- pull newest images -----
             sudo docker pull "${{ secrets.DOCKER_USERNAME }}/dental-backend:latest"
             sudo docker pull "${{ secrets.DOCKER_USERNAME }}/dental-frontend:latest"
 
-            # stop & remove old containers
+            # ----- stop & remove old containers -----
             sudo docker rm -f backend || true
             sudo docker rm -f frontend || true
 
-            # run backend
+            # ----- run backend (port 9000) -----
             sudo docker run -d --name backend \
               --restart unless-stopped \
               -e NODE_ENV=production \
@@ -120,52 +120,45 @@ jobs:
               -p 9000:9000 \
               "${{ secrets.DOCKER_USERNAME }}/dental-backend:latest"
 
-            # run frontend
+            # ----- run frontend (container listens on 8080; expose public 80) -----
             sudo docker run -d --name frontend \
               --restart unless-stopped \
               -e NODE_ENV=production \
               -p 80:8080 \
               "${{ secrets.DOCKER_USERNAME }}/dental-frontend:latest"
 
-            # quick health check
+            # ----- health check -----
             sleep 3
             sudo docker ps
 
-      # DORA end
+      # DORA end: stamp end time after deploy completes
       - name: Stamp end time (UTC)
         id: lt_end
         run: echo "END_TS=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
 
-      # Compute lead time and save (UTC + Asia/Colombo)
-      - name: Compute Lead Time and save (UTC + local)
+      # Compute Lead Time and save to artifact
+      - name: Compute Lead Time and save
         run: |
           python - << 'PY'
-          from datetime import datetime, timezone
-          from zoneinfo import ZoneInfo
+          from datetime import datetime
           import os, csv
 
-          start_raw = os.environ["START_TS"]
-          end_raw   = os.environ["END_TS"]
+          start = os.environ["START_TS"]  # from job1 output
+          end   = os.environ["END_TS"]    # from this job
 
-          def to_dt(ts: str) -> datetime:
-            ts = ts.replace("Z", "+00:00")
-            return datetime.fromisoformat(ts)
+          def parse(ts):
+            # Normalize Z to +0000 for strptime
+            return datetime.strptime(ts.replace("Z","+0000"), "%Y-%m-%dT%H:%M:%S%z")
 
-          s = to_dt(start_raw)
-          e = to_dt(end_raw)
-          lead_minutes = (e - s).total_seconds() / 60.0
+          s = parse(start)
+          e = parse(end)
+          minutes = (e - s).total_seconds() / 60.0
+          print(f"LeadTimeMinutes={minutes:.2f}")
 
-          SL = ZoneInfo("Asia/Colombo")
-          s_local = s.astimezone(SL); e_local = e.astimezone(SL)
-          s_utc = s.astimezone(timezone.utc); e_utc = e.astimezone(timezone.utc)
-
-          print(f"LeadTimeMinutes={lead_minutes:.2f}")
-          rows = [["repo","sha","start_ts_utc","end_ts_utc","start_ts_local","end_ts_local","lead_time_min"],
-                  [os.environ["GITHUB_REPOSITORY"], os.environ["GITHUB_SHA"],
-                   s_utc.isoformat().replace("+00:00","Z"),
-                   e_utc.isoformat().replace("+00:00","Z"),
-                   s_local.isoformat(), e_local.isoformat(),
-                   f"{lead_minutes:.2f}"]]
+          rows = [
+            ["repo","sha","start_ts","end_ts","lead_time_min"],
+            [os.environ["GITHUB_REPOSITORY"], os.environ["GITHUB_SHA"], start, end, f"{minutes:.2f}"]
+          ]
           with open("lead_time.csv","w", newline="") as f:
             csv.writer(f).writerows(rows)
           PY
