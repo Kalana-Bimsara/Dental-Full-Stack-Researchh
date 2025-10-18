@@ -8,11 +8,12 @@ on:
 jobs:
   multiarch-build-publish-to-docker-hub:
     name: Build & Publish (amd64+arm64) to Docker Hub
-    runs-on: ubuntu-24.04-arm64          # ⬅️ was ubuntu-latest (amd64). Now ARM64 runner.
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
 
+    # Expose START_TS to the deploy job
     outputs:
       START_TS: ${{ steps.lt_start.outputs.START_TS }}
 
@@ -33,12 +34,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # DORA start (merge commit time on main)
       - name: Capture DORA start timestamp (merge commit time on main)
         id: lt_start
         run: echo "START_TS=$(git show -s --format=%cI $GITHUB_SHA)" >> "$GITHUB_OUTPUT"
 
-      # - name: Set up QEMU (cross-arch)     # ⬅️ Not needed on ARM runner; safe to remove/comment
-      #   uses: docker/setup-qemu-action@v3
+      # Enable cross-arch building on amd64 runner
+      - name: Set up QEMU (cross-arch)
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Buildx
         uses: docker/setup-buildx-action@v3
@@ -63,7 +66,7 @@ jobs:
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.file }}
-          platforms: linux/arm64          # ⬅️ was linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm64   # ← build both architectures on amd64 runner
           push: true
           tags: |
             ${{ env.USER_LC }}/${{ matrix.repo_suffix }}:latest
@@ -99,10 +102,15 @@ jobs:
             DOCKER_USER,DOCKER_TOKEN,BACKEND_IMAGE,FRONTEND_IMAGE,MONGO_URI,STRIPE_SECRET_KEY
           command_timeout: 30m
           script: |
+            # pull newest images
             sudo docker pull "${{ secrets.DOCKER_USERNAME }}/dental-backend:latest"
             sudo docker pull "${{ secrets.DOCKER_USERNAME }}/dental-frontend:latest"
+
+            # stop & remove old containers
             sudo docker rm -f backend || true
             sudo docker rm -f frontend || true
+
+            # run backend
             sudo docker run -d --name backend \
               --restart unless-stopped \
               -e NODE_ENV=production \
@@ -111,18 +119,24 @@ jobs:
               -e STRIPE_SECRET_KEY="${{ secrets.STRIPE_SECRET_KEY }}" \
               -p 9000:9000 \
               "${{ secrets.DOCKER_USERNAME }}/dental-backend:latest"
+
+            # run frontend
             sudo docker run -d --name frontend \
               --restart unless-stopped \
               -e NODE_ENV=production \
               -p 80:8080 \
               "${{ secrets.DOCKER_USERNAME }}/dental-frontend:latest"
+
+            # quick health check
             sleep 3
             sudo docker ps
 
+      # DORA end
       - name: Stamp end time (UTC)
         id: lt_end
         run: echo "END_TS=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
 
+      # Compute lead time and save (UTC + Asia/Colombo)
       - name: Compute Lead Time and save (UTC + local)
         run: |
           python - << 'PY'
