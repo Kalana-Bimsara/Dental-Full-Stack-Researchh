@@ -226,18 +226,26 @@ jobs:
     contents: read
 
   steps:
-    - name: Checkout testing repo
-      uses: actions/checkout@v4
-      with:
-        repository: Kalana-Bimsara/functional_tests
-       
-    # (Optional) if the repo uses a non-default compose filename, set it here
-    - name: clone functional test repo
+    - name: Clone repo
+      run: git clone https://github.com/Kalana-Bimsara/functional_tests.git
+    - name: Compose up
       run: |
-        git clone https://github.com/Kalana-Bimsara/functional_tests.git
-        cd playwright-rbt-suites
-        docker-compose up 
+        docker compose version
+        docker compose up -d --build
+      working-directory: functional_tests
+
+    # - name: Checkout testing repo
+    #   uses: actions/checkout@v4
+    #   with:
+    #     repository: Kalana-Bimsara/functional_tests
+       
+    # # (Optional) if the repo uses a non-default compose filename, set it here
+    # - name: clone functional test repo
+    #   run: |
+    #     git clone https://github.com/Kalana-Bimsara/functional_tests.git
+    #     cd playwright-rbt-suites
+    #     docker-compose up 
       
-    - name: Docker-Compose down
-      if: always()
-      run: docker compose down --volumes --remove-orphans
+    # - name: Docker-Compose down
+    #   if: always()
+    #   run: docker compose down --volumes --remove-orphans
