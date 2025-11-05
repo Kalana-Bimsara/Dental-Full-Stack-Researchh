@@ -230,6 +230,7 @@ jobs:
       run: git clone https://github.com/Kalana-Bimsara/functional_tests.git
     - name: Compose up
       run: |
+        cd playwright-rbt-suites
         docker compose version
         docker compose up -d --build
       working-directory: functional_tests
