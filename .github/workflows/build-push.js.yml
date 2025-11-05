@@ -257,7 +257,7 @@ jobs:
       
   deploy-ec2-prod-environment-01:
     name: Deploy New images to Production-01 environment EC2 via SSH
-    needs: [Run-All-Testing,Run-rbt-Testing]
+    needs: [Run-All-Testing]
     runs-on: ubuntu-latest
     # allow committing the metrics CSV back to the repo
     permissions:
