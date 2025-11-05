@@ -90,7 +90,7 @@ jobs:
 
   deploy-ec2-Testing-environment:
     name: Deploy New images to Testing environment EC2 via SSH
-    #needs: multiarch-build-publish-to-docker-hub
+    needs: multiarch-build-publish-to-docker-hub
     runs-on: ubuntu-latest
     # allow committing the metrics CSV back to the repo
     permissions:
