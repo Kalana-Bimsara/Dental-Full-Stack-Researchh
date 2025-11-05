@@ -238,6 +238,6 @@ jobs:
         cd playwright-rbt-suites
         docker-compose up 
       
-    - name: Docker Compose down
+    - name: Docker-Compose down
       if: always()
       run: docker compose down --volumes --remove-orphans
