@@ -219,7 +219,7 @@ jobs:
   #         git commit -m "[metrics] add lead time file per run [skip ci]" || echo "No changes to commit"
   #         git push
 
- Run-Testing-environment:
+ Run-All-Testing:
   name: Run Test Cases on Testing environment
   runs-on: ubuntu-latest
   permissions:
@@ -235,19 +235,29 @@ jobs:
         docker compose up -d --build
         docker compose run --rm tests-all
       working-directory: functional_tests
-
-    # - name: Checkout testing repo
-    #   uses: actions/checkout@v4
-    #   with:
-    #     repository: Kalana-Bimsara/functional_tests
-       
-    # # (Optional) if the repo uses a non-default compose filename, set it here
-    # - name: clone functional test repo
-    #   run: |
-    #     git clone https://github.com/Kalana-Bimsara/functional_tests.git
-    #     cd playwright-rbt-suites
-    #     docker-compose up 
       
-    # - name: Docker-Compose down
-    #   if: always()
-    #   run: docker compose down --volumes --remove-orphans
+    - name: Docker-Compose down
+      if: always()
+      run: docker compose down --volumes --remove-orphans
+
+ Run-rbt-Testing:
+  name: Run RBT Test Cases on Testing environment
+  runs-on: ubuntu-latest
+  permissions:
+    contents: read
+
+  steps:
+    - name: Clone repo
+      run: git clone https://github.com/Kalana-Bimsara/functional_tests.git
+    - name: Compose up
+      run: |
+        cd playwright-rbt-suites
+        docker compose version
+        docker compose up -d --build
+        docker compose run --rm tests-rbt
+      working-directory: functional_tests
+      
+    - name: Docker-Compose down
+      if: always()
+      run: docker compose down --volumes --remove-orphans
+    
