@@ -230,41 +230,14 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: Kalana-Bimsara/functional_tests
-        path: playwright-rbt-suites
-        fetch-depth: 1
-
+       
     # (Optional) if the repo uses a non-default compose filename, set it here
-    - name: Detect compose file
-      id: compose
+    - name: clone functional test repo
       run: |
-        if [ -f docker-compose.yml ]; then echo "FILE=docker-compose.yml" >> $GITHUB_OUTPUT; \
-        elif [ -f compose.yml ]; then echo "FILE=compose.yml" >> $GITHUB_OUTPUT; \
-        else echo "FILE=docker-compose.yml" >> $GITHUB_OUTPUT; fi
-      working-directory: playwright-rbt-suites
-
-   
-    - name: Docker Compose up
-      run: |
-        docker compose -f "${{ steps.compose.outputs.FILE }}" pull || true
-        docker compose -f "${{ steps.compose.outputs.FILE }}" up -d --build
-      working-directory: playwright-rbt-suites
-
-    # Choose ONE way to run tests (uncomment the one you actually use):
-
-    # 1) Exec into a running service (e.g., "backend" or "web"):
-    # - name: Run tests (exec)
-    #   run: docker compose -f "${{ steps.compose.outputs.FILE }}" exec -T backend npm test
-    #   working-directory: playwright-rbt-suites
-
-    # 2) Run an ephemeral test service defined in compose (e.g., "tests"):
-    # - name: Run tests (compose run)
-    #   run: docker compose -f "${{ steps.compose.outputs.FILE }}" run --rm tests npm test
-    #   working-directory: playwright-rbt-suites
-
-    # 3) If tests are host-level (no container):
-   
-
+        git clone https://github.com/Kalana-Bimsara/functional_tests.git
+        cd playwright-rbt-suites
+        docker-compose up 
+      
     - name: Docker Compose down
       if: always()
-      run: docker compose -f "${{ steps.compose.outputs.FILE }}" down --volumes --remove-orphans
-      working-directory: playwright-rbt-suites
+      run: docker compose down --volumes --remove-orphans
