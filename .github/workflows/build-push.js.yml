@@ -232,7 +232,7 @@ jobs:
       run: |
         cd playwright-rbt-suites
         docker compose version
-        docker compose up -d --build
+        docker compose up --build 
       working-directory: functional_tests
 
     # - name: Checkout testing repo
