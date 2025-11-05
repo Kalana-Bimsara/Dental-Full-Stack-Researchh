@@ -1,4 +1,4 @@
-import React from "react";
+// React import not required with the new JSX runtime
 import NavbarComponent from "../components/navbar";
 import Footer from "../components/footer";
 import Prices from "../components/prices";

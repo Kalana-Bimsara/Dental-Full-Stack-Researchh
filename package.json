@@ -1,0 +1,19 @@
+{
+  "name": "dental-full-stack",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "lint:fe": "eslint \"app/frontend/**/*.{js,jsx}\"",
+    "lint:be": "eslint \"app/backend/**/*.js\""
+  },
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "eslint-plugin-react": "^7.0.0",
+    "eslint-plugin-react-hooks": "^4.0.0",
+    "eslint-plugin-jsx-a11y": "^6.0.0",
+    "globals": "^15.0.0"
+  }
+}

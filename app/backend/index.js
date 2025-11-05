@@ -3,7 +3,7 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
-
+import dotenv from 'dotenv';
 import basicRoutes from "./routes/basicRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import { connectWebSocket } from './controllers/useController.js';
@@ -18,6 +18,7 @@ connectDB();
 //connect with websocket
 connectWebSocket();
 
+dotenv.config();
 
 // Middleware
 app.use(cors());

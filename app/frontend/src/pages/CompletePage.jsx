@@ -40,11 +40,11 @@ export default function CompletePage() {
   async function saveBooking() {
     try {
       if (
-        intentId &&
-        clientSecret &&
-        status == "succeeded" &&
-        !sessionStorage.getItem("bookingSaved")
-      ) {
+          intentId &&
+          clientSecret &&
+          status === "succeeded" &&
+          !sessionStorage.getItem("bookingSaved")
+        ) {
         const response = await axios.post("http://localhost:9000/saveBooking", {
           patientName: sessionStorage.getItem("patientName"),
           mobileNumber: sessionStorage.getItem("mobileNumber"),
@@ -69,7 +69,7 @@ export default function CompletePage() {
     <>
       {(intentId &&
         clientSecret &&
-        status == "succeeded")? (
+        status === "succeeded")? (
         <div style={styles.container}>
           <div style={styles.card}>
             <h1 style={styles.title}>Thank You!</h1>

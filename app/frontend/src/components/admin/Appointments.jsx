@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+// React import not required with the new JSX runtime
+import { useEffect, useState } from "react";
 import axios from "axios";
-import DashboardAppoimantsDoctorOption from "./adminComponents/dashboardAppoimentsDoctorOption";
+// import DashboardAppoimantsDoctorOption from "./adminComponents/dashboardAppoimentsDoctorOption";
 
 const Appointments = () => {
 

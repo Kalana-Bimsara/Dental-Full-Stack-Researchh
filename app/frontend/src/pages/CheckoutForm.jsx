@@ -6,7 +6,7 @@ import {
 } from "@stripe/react-stripe-js";
 
 export default function CheckoutForm() {
-  const baseUrl = process.env.REACT_APP_PUBLIC_BASE_URL_PORT;
+  const baseUrl = import.meta.env.REACT_APP_PUBLIC_BASE_URL_WITH_PORT;
   const stripe = useStripe();
   
   const elements = useElements();

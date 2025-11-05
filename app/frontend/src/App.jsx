@@ -1,4 +1,4 @@
-import React from "react";
+// React import not required with the new JSX runtime
 import HomePage from "./pages/home";
 import Price from "./pages/price";
 import OurTeam from "./pages/ourTeam";
@@ -23,7 +23,7 @@ function App() {
   // Enable the skeleton loader UI for optimal loading.
   const loader = "auto";
   const stripePromise = loadStripe(
-    "pk_test_51Qg5RMRbw5Znp41bbO2vGnrz9kOJMdnGrS6VyOgtrkaYK6z13qNso5NNCFwFvskyH8UbIBMBr4GhhWo15akDjgsp00cewlG6nR"
+    "pk_test_51SPm5VGYw2u1fbQ5NNxmrHBt2eRfA0fTz1A0gjfsuX2GLpJRv4oG7upaSTsPuHgocTZcHM9oBmVFdNQyACqNfwOm00Q25nKfFI"
   );
   const location = useLocation();
   const clientSecret = location.state?.clientSecret; 

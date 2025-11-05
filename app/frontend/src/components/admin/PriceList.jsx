@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+// React import not required with the new JSX runtime
+import { useEffect, useState } from "react";
 import AddServiceModal from "./AddServiceModel";
 import DashboardButton from "./adminComponents/dashboardButton";
 import DashboardSectionHedding from "./adminComponents/dashboardSectionHedding";

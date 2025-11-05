@@ -1,4 +1,4 @@
-import React from "react";
+// React import not required with the new JSX runtime
 import { useForm } from "react-hook-form";
 import { Helmet } from 'react-helmet-async';
 import axios from "axios";

@@ -1,4 +1,4 @@
-import React from "react";
+// React import not required with the new JSX runtime
 import { Link } from "react-router";
 import { HashLink } from 'react-router-hash-link';
 
