@@ -236,9 +236,6 @@ jobs:
         docker compose run --rm tests-all
       working-directory: functional_tests
       
-    - name: Docker-Compose down
-      if: always()
-      run: docker compose down --volumes --remove-orphans
 
  Run-rbt-Testing:
   name: Run RBT Test Cases on Testing environment
