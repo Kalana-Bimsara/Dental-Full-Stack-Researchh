@@ -7,22 +7,24 @@ import { Link } from "react-router-dom";
 
 const Register = () => {
 
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
-    const BACKEND_PORT = import.meta.env.BACKEND_PORT || "9000";
+  const BACKEND_PORT = import.meta.env.BACKEND_PORT || "9000";
   const HOST = import.meta.env.HOST || "http://localhost";
 
   const onSubmit = async (data) => {
     try {
       const response = await axios.post(`${HOST}:${BACKEND_PORT}/api/user/register`, data);
 
-      const redirectTo = location.state?.from || "/login";
-      navigate(redirectTo);
+      if (response.status === 201 || response.status === 200) {
+        setShowSuccessModal(true);
+      }
 
     } catch (error) {
       console.log(error);
@@ -30,13 +32,20 @@ const Register = () => {
     }
   };
 
+  const handleGoToLogin = () => {
+    setShowSuccessModal(false);
+    const redirectTo = location.state?.from || "/login";
+    navigate(redirectTo);
+  };
+
+
   return (
     <>
       <Helmet>
         <title>Registration</title>
         <meta name="description" content="This is the Log In " />
       </Helmet>
-    
+
       <div className="container d-flex justify-content-center align-items-center vh-100">
         <form
           className="shadow p-5 rounded bg-custom-blue"
@@ -92,6 +101,28 @@ const Register = () => {
           <Link to="/login">Login</Link>
         </form>
       </div>
+      {showSuccessModal && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1050 }}
+        >
+          <div className="bg-white p-4 rounded shadow" style={{ maxWidth: "400px", width: "100%" }}>
+            <h4 className="mb-3 text-success">Registration Successful 🎉</h4>
+            <p>Your account has been created successfully. Please log in to continue.</p>
+            <div className="d-flex justify-content-end gap-2 mt-3">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowSuccessModal(false)}
+              >
+                Close
+              </button>
+              <button className="btn btn-primary" onClick={handleGoToLogin}>
+                Go to Login
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
