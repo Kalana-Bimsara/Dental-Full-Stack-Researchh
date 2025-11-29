@@ -13,7 +13,7 @@ const Contact = () => {
   } = useForm();
 
   const onSubmit = async (data) => {
-    const response = await axios.post(`${HOST}:${PORT}/contactus`, data);
+    const response = await axios.post(`${HOST}:${BACKEND_PORT}/contactus`, data);
     if (response.data) {
       reset();
       alert("message saved");
