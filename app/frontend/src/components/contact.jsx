@@ -1,6 +1,8 @@
 // React import not required with the new JSX runtime
 import { useForm } from "react-hook-form";
 import axios from "axios";
+  const BACKEND_PORT = import.meta.env.BACKEND_PORT || "9000";
+  const HOST = import.meta.env.HOST || "http://localhost";
 
 const Contact = () => {
   const {
@@ -11,7 +13,7 @@ const Contact = () => {
   } = useForm();
 
   const onSubmit = async (data) => {
-    const response = await axios.post("http://localhost:9000/contactus", data);
+    const response = await axios.post(`${HOST}:${PORT}/contactus`, data);
     if (response.data) {
       reset();
       alert("message saved");

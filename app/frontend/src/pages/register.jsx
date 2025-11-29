@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
+import { useState } from "react";
 
 const Register = () => {
 
@@ -110,14 +111,9 @@ const Register = () => {
             <h4 className="mb-3 text-success">Registration Successful 🎉</h4>
             <p>Your account has been created successfully. Please log in to continue.</p>
             <div className="d-flex justify-content-end gap-2 mt-3">
-              <button
-                className="btn btn-secondary"
-                onClick={() => setShowSuccessModal(false)}
-              >
-                Close
-              </button>
+              
               <button className="btn btn-primary" onClick={handleGoToLogin}>
-                Go to Login
+                OK
               </button>
             </div>
           </div>

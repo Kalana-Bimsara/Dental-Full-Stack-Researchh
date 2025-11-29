@@ -11,6 +11,7 @@ import { connectWebSocket } from './controllers/useController.js';
 
 const app = express();
 const port = process.env.BACKEND_PORT;
+const HOST = process.env.HOST || 'http://localhost';
 
 // Connect to MongoDB
 connectDB();
@@ -41,5 +42,5 @@ app.get('/', (req, res) => {
 
 
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server is running on ${HOST}:${port}`);
 });

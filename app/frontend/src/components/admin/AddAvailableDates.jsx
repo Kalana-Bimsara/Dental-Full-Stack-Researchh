@@ -22,11 +22,14 @@ const AddAvailableDateModal = () => {
     reset,
   } = useForm();
 
+  const HOST = import.meta.env.HOST || "http://localhost";
+  const PORT = import.meta.env.BACKEND_PORT || "9000";
+
   const onSubmit = async (data) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:9000/api/admin/adddate",data, config
+        `${HOST}:${PORT}/api/admin/adddate`,data, config
       );
       if (response.data) {
         alert(response.data);
@@ -42,7 +45,7 @@ const AddAvailableDateModal = () => {
   async function getDoctors() {
     try {
       const response = await axios.get(
-        "http://localhost:9000/api/admin/getdoctors",config
+        `${HOST}:${PORT}/api/admin/getdoctors`,config
       );
       if (response.data) {
         setDoctors(response.data);
@@ -55,7 +58,7 @@ const AddAvailableDateModal = () => {
   async function getdates() {
     try {
         const response = await axios.get(
-            "http://localhost:9000/getdates"
+            `${HOST}:${PORT}/getdates`
           );
           if (response.data) {
             setDates(response.data);

@@ -8,6 +8,9 @@ const AddServiceModal = (props) => {
 
   const token = sessionStorage.getItem('token');
 
+  const HOST = import.meta.env.HOST || "http://localhost";
+  const PORT = import.meta.env.BACKEND_PORT || "9000";
+
   // Config for Authorization header
   const config = {
     headers: {
@@ -25,7 +28,7 @@ const AddServiceModal = (props) => {
   const onSubmit = async (data) => {
     
     try {
-      const response = await axios.post("http://localhost:9000/api/admin/addservice", data, config);
+      const response = await axios.post(`${HOST}:${PORT}/api/admin/addservice`, data, config);
       if (response.data) {
         alert(response.data);
         reset();

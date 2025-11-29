@@ -7,11 +7,14 @@ const Appointments = () => {
 
   const [bookings, setBookings] = useState([]);
 
+  const HOST = import.meta.env.HOST || "http://localhost";
+  const PORT = import.meta.env.BACKEND_PORT || "9000";
+
 
     async function GetBookingAvailable() {
       try {
         const response = await axios.get(
-          "http://localhost:9000/getBookings"
+          `${HOST}:${PORT}/getBookings`
         );
         if (response.data) {
           setBookings(response.data);
