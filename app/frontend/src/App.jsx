@@ -32,7 +32,7 @@ function App() {
       <HelmetProvider>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/price" element={<Price />} />
+          <Route path="/prices" element={<Price />} />
           <Route path="/ourteam" element={<OurTeam />} />
           <Route path="/login" element={<Login />} />
           <Route path="register" element={<Register />} />
