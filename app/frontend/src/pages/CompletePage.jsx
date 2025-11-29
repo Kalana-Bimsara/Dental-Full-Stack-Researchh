@@ -7,6 +7,8 @@ export default function CompletePage() {
   const [status, setStatus] = useState("default");
   const [intentId, setIntentId] = useState(null);
   const [clientSecret, setClientSecret] = useState(null);
+  const HOST = import.meta.env.HOST || "http://localhost";
+  const BACKEND_PORT = import.meta.env.BACKEND_PORT || "9000";
 
   useEffect(() => {
     if (!stripe) {
@@ -45,7 +47,7 @@ export default function CompletePage() {
           status === "succeeded" &&
           !sessionStorage.getItem("bookingSaved")
         ) {
-        const response = await axios.post("http://localhost:9000/saveBooking", {
+        const response = await axios.post(`${HOST}//:${BACKEND_PORT}/saveBooking`, {
           patientName: sessionStorage.getItem("patientName"),
           mobileNumber: sessionStorage.getItem("mobileNumber"),
           emailAddress: sessionStorage.getItem("emailAddress"),
@@ -146,3 +148,104 @@ const styles = {
     fontSize: "16px",
   },
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import React, { useEffect, useState } from "react";
+// import { useStripe } from "@stripe/react-stripe-js";
+// import axios from "axios";
+
+// export default function CompletePage() {
+//   const stripe = useStripe();
+//   const [status, setStatus] = useState("loading");
+//   const [intentId, setIntentId] = useState(null);
+
+//   const HOST = "http://localhost";
+//   const BACKEND_PORT = "9000";
+
+//   useEffect(() => {
+//     if (!stripe) return;
+
+//     const clientSecret = new URLSearchParams(window.location.search).get(
+//       "payment_intent_client_secret"
+//     );
+//     if (!clientSecret) return;
+
+//     stripe.retrievePaymentIntent(clientSecret).then(({ paymentIntent }) => {
+//       if (paymentIntent) {
+//         setStatus(paymentIntent.status);
+//         setIntentId(paymentIntent.id);
+//       }
+//     });
+//   }, [stripe]);
+
+//   useEffect(() => {
+//     async function saveBooking() {
+//       if (
+//         status === "succeeded" &&
+//         intentId &&
+//         !sessionStorage.getItem("bookingSaved")
+//       ) {
+//         try {
+//           const response = await axios.post(
+//             `${HOST}:${BACKEND_PORT}/saveBooking`,
+//             {
+//               patientName: sessionStorage.getItem("patientName"),
+//               mobileNumber: sessionStorage.getItem("mobileNumber"),
+//               emailAddress: sessionStorage.getItem("emailAddress"),
+//               doctor: sessionStorage.getItem("doctor"),
+//               service: sessionStorage.getItem("service"),
+//               appointmentDate: sessionStorage.getItem("appointmentDate"),
+//               price: sessionStorage.getItem("price"),
+//             }
+//           );
+
+//           if (response.data) {
+//             sessionStorage.setItem("bookingSaved", "true");
+//           }
+//         } catch (err) {
+//           alert("Booking save failed");
+//         }
+//       }
+//     }
+
+//     saveBooking();
+//   }, [status, intentId]);
+
+//   if (status === "loading") return <p>Checking payment…</p>;
+
+//   if (status !== "succeeded") {
+//     return <h2>Something went wrong. Please try again.</h2>;
+//   }
+
+//   return (
+//     <div>
+//       <h1>Thank you!</h1>
+//       <p>Your payment was successful.</p>
+//       <p>Payment ID: {intentId}</p>
+//     </div>
+//   );
+// }

@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import DashboardAppoimantsDoctorOption from "./admin/adminComponents/dashboardAppoimentsDoctorOption";
 import SelectOptionForDate from "./selectOptionForDate";
 
+
+
 const BookAnAppointment = () => {
   const [selectedPrice, setSelectedPrice] = useState(null);
 
@@ -28,6 +30,8 @@ const BookAnAppointment = () => {
   const [doctors, setDoctors] = useState([]);
   const [dates, setDates] = useState([]);
   const [services, setServices] = useState([]);
+  const BACKEND_PORT = import.meta.env.BACKEND_PORT || "9000";
+  const HOST = import.meta.env.HOST || "http://localhost";
 
   const {
     register,
@@ -41,7 +45,7 @@ const BookAnAppointment = () => {
     console.log("Form Data:", data);
     try {
       const response = await axios.post(
-        "http://localhost:9000/create-payment-intent",
+        `${HOST}:${BACKEND_PORT}/create-payment-intent`,
         {
           
           patientName : data.patientName,
@@ -78,7 +82,7 @@ const BookAnAppointment = () => {
 
   async function getDoctors() {
     try {
-      const response = await axios.get("http://localhost:9000/getDoctors");
+      const response = await axios.get(`${HOST}:${BACKEND_PORT}/getDoctors`);
       if (response.data) {
         setDoctors(response.data);
       }
@@ -88,7 +92,7 @@ const BookAnAppointment = () => {
   }
   async function getDates() {
     try {
-      const response = await axios.get("http://localhost:9000/getDates");
+      const response = await axios.get(`${HOST}:${BACKEND_PORT}/getDates`);
       if (response.data) {
         setDates(response.data);
       }
@@ -98,7 +102,7 @@ const BookAnAppointment = () => {
   }
   async function GetServices() {
     try {
-      const response = await axios.get("http://localhost:9000/getServices");
+      const response = await axios.get(`${HOST}:${BACKEND_PORT}/getServices`);
       if (response.data) {
         setServices(response.data);
       }
