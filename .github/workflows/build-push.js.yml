@@ -235,6 +235,9 @@ jobs:
       - name: Clone repo
         run: git clone https://github.com/Kalana-Bimsara/functional_tests.git
       - name: Compose up
+        env:
+          MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
+          MONGODB_DBNAME: "test"
         run: |
           cd playwright-rbt-suites
           docker compose version
@@ -253,6 +256,9 @@ jobs:
       - name: Clone repo
         run: git clone https://github.com/Kalana-Bimsara/functional_tests.git
       - name: Compose up
+        env:
+          MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
+          MONGODB_DBNAME: "test"
         run: |
           cd playwright-rbt-suites
           docker compose version
