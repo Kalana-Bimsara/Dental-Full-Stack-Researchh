@@ -1,8 +1,38 @@
 // React import not required with the new JSX runtime
 import { Link } from "react-router";
 import { HashLink } from 'react-router-hash-link';
+import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 const NavbarComponent = () => {
+
+
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    !!sessionStorage.getItem("token")
+  );
+
+  const navigate = useNavigate();
+
+
+  useEffect(() => {
+    // In case you ever use multiple tabs
+    const handleStorage = (e) => {
+      if (e.key === "token") {
+        setIsLoggedIn(!!e.newValue);
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
+
+  const handleLogout = () => {
+    sessionStorage.clear();
+    setIsLoggedIn(false);
+    navigate("/");
+  };
+
+
   return (
     <>
       <nav className="navbar navbar-expand-lg navbar-light bg-dark-navy shadow-sm sticky-top">
@@ -75,7 +105,23 @@ const NavbarComponent = () => {
             </ul>
             {/* Book Now Button */}
             <Link to="/booking" className="btn btn-primary btn-lg ms-3" >Book Now</Link>
-            <Link to="/login" className="btn btn-success btn-lg ms-3" >Log In</Link>
+            {/* <Link to="/login" className="btn btn-success btn-lg ms-3" >Log In</Link> */}
+            {/* Show Log In only when NOT logged in */}
+            {!isLoggedIn && (
+              <Link to="/login" className="btn btn-success btn-lg ms-3">
+                Log In
+              </Link>
+            )}
+
+            {/* Show Logout only when logged in */}
+            {isLoggedIn && (
+              <button
+                className="btn btn-outline-light btn-lg ms-3"
+                onClick={handleLogout}
+              >
+                Log Out
+              </button>
+            )}
           </div>
         </div>
       </nav>

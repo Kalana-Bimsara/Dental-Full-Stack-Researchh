@@ -13,6 +13,9 @@ import { Link } from "react-router-dom";
 const Login = () => {
   const navigate = useNavigate();  // Correct hook for navigation
   const location = useLocation(); 
+
+  const BACKEND_PORT = import.meta.env.BACKEND_PORT || "9000";
+  const HOST = import.meta.env.HOST || "http://localhost";
   
   const {
     register,
@@ -20,9 +23,10 @@ const Login = () => {
     formState: { errors },
   } = useForm();
 
+
   const onSubmit = async (data) => {
 
-    const response = await axios.post('http://localhost:9000/api/user/login', data);
+    const response = await axios.post(`${HOST}:${BACKEND_PORT}/api/user/login`, data);
     console.log(response.data.token); 
 
     if (response.data.token) {
@@ -36,7 +40,6 @@ const Login = () => {
       navigate(redirectTo);
     }
     
-
     }
     
   };

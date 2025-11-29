@@ -12,7 +12,8 @@ const Booking = () => {
   const [bookingCountsByDate, setBookingCountsByDate] = useState({});
   const [services, setServices] = useState([]);
 
-
+  const PORT = import.meta.env.BACKEND_PORT || "9000";
+  const HOST = import.meta.env.HOST || "http://localhost";
 
   useEffect(() => {
     const socket = new WebSocket('ws://localhost:8080');
@@ -47,7 +48,7 @@ const Booking = () => {
   async function GetServices() {
     try {
       const response = await axios.get(
-        "http://localhost:9000/getservices"
+        `${HOST}:${PORT}/getservices`
       );
       if (response.data) {
         setServices(response.data);

@@ -14,9 +14,12 @@ const Register = () => {
     formState: { errors },
   } = useForm();
 
+    const BACKEND_PORT = import.meta.env.BACKEND_PORT || "9000";
+  const HOST = import.meta.env.HOST || "http://localhost";
+
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post('http://localhost:9000/api/user/register', data);
+      const response = await axios.post(`${HOST}:${BACKEND_PORT}/api/user/register`, data);
 
       const redirectTo = location.state?.from || "/login";
       navigate(redirectTo);
