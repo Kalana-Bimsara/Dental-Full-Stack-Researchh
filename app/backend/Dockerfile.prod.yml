@@ -13,15 +13,29 @@ COPY . .
 
 RUN npm run build
 
-From cgr.dev/chainguard/node:latest
+#From cgr.dev/chainguard/node:latest AS production
+
+# FROM gcr.io/distroless/static-debian12
+
+FROM gcr.io/distroless/nodejs22-debian12 AS production
+
+WORKDIR /app
+
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
 
 ENV NODE_ENV=production
-
-COPY --from=build /app/dist/server.bundle.cjs ./
-
 EXPOSE 9000
-EXPOSE 8080
 
-USER 65532:65532
+CMD ["dist/server.bundle.cjs"]
 
-CMD ["server.bundle.cjs"]  
+# ENV NODE_ENV=production
+
+# COPY --from=build /app/dist/server.bundle.cjs ./app
+
+# EXPOSE 9000
+# EXPOSE 8080
+
+# USER 65532:65532
+
+# CMD ["server.bundle.cjs"]  
