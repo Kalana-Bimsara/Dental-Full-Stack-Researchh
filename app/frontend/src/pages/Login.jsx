@@ -14,8 +14,8 @@ const Login = () => {
   const navigate = useNavigate();  // Correct hook for navigation
   const location = useLocation(); 
 
-  const BACKEND_PORT = import.meta.env.BACKEND_PORT || "9000";
-  const HOST = import.meta.env.HOST || "http://localhost";
+  const BACKEND_PORT = import.meta.env.VITE_BACKEND_PORT || "9000";
+  const HOST = import.meta.env.VITE_HOST || "http://localhost";
   
   const {
     register,

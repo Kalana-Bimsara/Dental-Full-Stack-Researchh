@@ -1,8 +1,8 @@
 // React import not required with the new JSX runtime
 import { useForm } from "react-hook-form";
 import axios from "axios";
-  const BACKEND_PORT = import.meta.env.BACKEND_PORT || "9000";
-  const HOST = import.meta.env.HOST || "http://localhost";
+  const BACKEND_PORT = import.meta.env.VITE_BACKEND_PORT || "9000";
+  const HOST = import.meta.env.VITE_HOST || "http://localhost";
 
 const Contact = () => {
   const {

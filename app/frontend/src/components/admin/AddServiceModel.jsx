@@ -8,8 +8,8 @@ const AddServiceModal = (props) => {
 
   const token = sessionStorage.getItem('token');
 
-  const HOST = import.meta.env.HOST || "http://localhost";
-  const PORT = import.meta.env.BACKEND_PORT || "9000";
+  const HOST = import.meta.env.VITE_HOST || "http://localhost";
+  const PORT = import.meta.env.VITE_BACKEND_PORT || "9000";
 
   // Config for Authorization header
   const config = {

@@ -14,6 +14,9 @@ const AddDoctorModal = () => {
   };
 
 
+  const HOST = import.meta.env.VITE_HOST || "http://localhost";
+  const POST = import.meta.env.VITE_BACKEND_PORT || "9000";
+
   const [doctors , setDoctors] = useState([]);
 
   const {

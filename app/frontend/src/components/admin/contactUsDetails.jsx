@@ -12,6 +12,9 @@ const ContactUsDetails = () => {
     },
   };
   
+  const HOST = import.meta.env.VITE_HOST || "http://localhost";
+  const PORT = import.meta.env.VITE_BACKEND_PORT || "9000";
+
   const [contactUsDetails, setContactUsDetails] = useState([]);
 
   async function fetchContactUsDetails() {

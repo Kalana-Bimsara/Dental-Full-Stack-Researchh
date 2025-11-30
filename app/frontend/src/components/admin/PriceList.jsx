@@ -8,7 +8,11 @@ import axios from "axios";
 
 const PriceList = () => {
 
+ 
+
   const [services, setServices] = useState([]);
+  const HOST = import.meta.env.VITE_HOST || "http://localhost";
+  const PORT = import.meta.env.VITE_BACKEND_PORT || "9000";
 
   async function GetServices() {
     try {

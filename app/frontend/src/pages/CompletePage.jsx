@@ -7,8 +7,8 @@ export default function CompletePage() {
   const [status, setStatus] = useState("default");
   const [intentId, setIntentId] = useState(null);
   const [clientSecret, setClientSecret] = useState(null);
-  const HOST = import.meta.env.HOST || "http://localhost";
-  const BACKEND_PORT = import.meta.env.BACKEND_PORT || "9000";
+  const HOST = import.meta.env.VITE_HOST || "http://localhost";
+  const BACKEND_PORT = import.meta.env.VITE_BACKEND_PORT || "9000";
 
   useEffect(() => {
     if (!stripe) {
