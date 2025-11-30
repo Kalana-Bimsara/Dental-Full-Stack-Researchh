@@ -119,7 +119,7 @@ jobs:
             # ----- run backend (port 9000) -----
             sudo docker run -d --name backend \
               --restart unless-stopped \
-              -e NODE_ENV=production \
+              -e NODE_ENV=testing \
               -e BACKEND_PORT=9000 \
               -e FRONT_END_PORT=80 \
               -e HOST="http://${{ secrets.EC2_TEST_HOST }}" \
@@ -131,7 +131,7 @@ jobs:
             # ----- run frontend (container listens on 8080; expose public 80) -----
             sudo docker run -d --name frontend \
               --restart unless-stopped \
-              -e NODE_ENV=production \
+              -e NODE_ENV=testing \
               -e FRONT_END_PORT=80 \
               -e BACKEND_PORT="9000" \
               -e VITE_FRONTEND_URL="http://${{ secrets.EC2_TEST_HOST }}" \
@@ -266,8 +266,8 @@ jobs:
           docker compose run --rm tests-rbt
         working-directory: functional_tests
       
-  deploy-ec2-prod-environment-01:
-    name: Deploy New images to Production-01 environment EC2 via SSH
+  deploy-ec2-prod-environment-a:
+    name: Deploy New images to Production-a environment EC2 via SSH
     needs: [Run-All-Testing]
     runs-on: ubuntu-latest
     # allow committing the metrics CSV back to the repo
@@ -331,6 +331,79 @@ jobs:
               -e BACKEND_PORT="9000" \
               -e VITE_FRONTEND_URL="http://${{ secrets.EC2_PROD_01_HOST }}" \
               -e HOST="http://${{ secrets.EC2_PROD_01_HOST }}" \
+              -p 80:8080 \
+              "${{ secrets.DOCKER_USERNAME }}/dental-frontend:latest"
+
+
+            # ----- health check -----
+            sleep 3
+            sudo docker ps
+
+  deploy-ec2-prod-environment-b:
+    name: Deploy New images to Production-b environment EC2 via SSH
+    needs: [Run-rbt-Testing]
+    runs-on: ubuntu-latest
+    # allow committing the metrics CSV back to the repo
+    permissions:
+      contents: write
+
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_PROD_B_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script_stop: true
+          envs: |
+            DOCKER_USER,DOCKER_TOKEN,BACKEND_IMAGE,FRONTEND_IMAGE,MONGO_URI,STRIPE_SECRET_KEY
+          command_timeout: 30m
+          script: |
+            # ----- pull newest images -----
+            sudo docker pull "${{ secrets.DOCKER_USERNAME }}/dental-backend:latest"
+            sudo docker pull "${{ secrets.DOCKER_USERNAME }}/dental-frontend:latest"
+
+            # ----- stop & remove old containers -----
+            sudo docker rm -f backend || true
+            sudo docker rm -f frontend || true
+
+            # # ----- run backend (port 9000) -----
+            # sudo docker run -d --name backend \
+            #   --restart unless-stopped \
+            #   -e NODE_ENV=production \
+            #   -e BACKEND_PORT=9000 \
+            #   -e MONGO_URI="${{ secrets.MONGO_URI }}" \
+            #   -e STRIPE_SECRET_KEY="${{ secrets.STRIPE_SECRET_KEY }}" \
+            #   -p 9000:9000 \
+            #   "${{ secrets.DOCKER_USERNAME }}/dental-backend:latest"
+
+            # # ----- run frontend (container listens on 8080; expose public 80) -----
+            # sudo docker run -d --name frontend \
+            #   --restart unless-stopped \
+            #   -e NODE_ENV=production \
+            #   -p 80:8080 \
+            #   "${{ secrets.DOCKER_USERNAME }}/dental-frontend:latest"
+
+             sudo docker run -d --name backend \
+              --restart unless-stopped \
+              -e NODE_ENV=production \
+              -e BACKEND_PORT=9000 \
+              -e FRONT_END_PORT=80 \
+              -e HOST="http://${{ secrets.EC2_PROD_B_HOST }}" \
+              -e MONGO_URI="${{ secrets.MONGO_URI }}" \
+              -e STRIPE_SECRET_KEY="${{ secrets.STRIPE_SECRET_KEY }}" \
+              -p 9000:9000 \
+              "${{ secrets.DOCKER_USERNAME }}/dental-backend:latest"
+
+            # ----- run frontend (container listens on 8080; expose public 80) -----
+            sudo docker run -d --name frontend \
+              --restart unless-stopped \
+              -e NODE_ENV=production \
+              -e FRONT_END_PORT=80 \
+              -e BACKEND_PORT="9000" \
+              -e VITE_FRONTEND_URL="http://${{ secrets.EC2_PROD_B_HOST }}" \
+              -e HOST="http://${{ secrets.EC2_PROD_B_HOST }}" \
               -p 80:8080 \
               "${{ secrets.DOCKER_USERNAME }}/dental-frontend:latest"
 
