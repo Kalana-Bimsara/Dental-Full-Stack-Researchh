@@ -17,7 +17,7 @@ const Register = () => {
   } = useForm();
 
   const BACKEND_PORT = import.meta.env.BACKEND_PORT || "9000";
-  const HOST = import.meta.env.HOST || "http://localhost";
+  const HOST = import.meta.env.HOST || "http://13.203.72.117";
 
   const onSubmit = async (data) => {
     try {
