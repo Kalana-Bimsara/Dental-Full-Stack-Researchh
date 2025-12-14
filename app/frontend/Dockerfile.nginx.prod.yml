@@ -13,14 +13,16 @@ COPY . .
 
 RUN npm run build
 
-From cgr.dev/chainguard/nginx:latest
+# From cgr.dev/chainguard/nginx:latest
+FROM nginx:alpine AS production
 
 ENV NODE_ENV=production
 
 COPY --from=build /app/dist /usr/share/nginx/html
 
-USER 65532:65532
+COPY ./docker-entrypoint.sh /docker-entrypoint.sh
 
-EXPOSE 8080
-
-
+RUN chmod +x /docker-entrypoint.sh
+ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["nginx", "-g", "daemon off;"]
+EXPOSE 80

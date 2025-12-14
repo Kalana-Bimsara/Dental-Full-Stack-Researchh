@@ -1,29 +1,32 @@
 services:
   dental-frontend:
-    # build:
-    #   context: frontend/
-    #   dockerfile: Dockerfile.nginx.prod.yml
-    image: dinethchathurya/dental-frontend:latest
+    build:
+      context: frontend/
+      dockerfile: Dockerfile.nginx.prod.yml
+    #image: dinethchathurya/dental-frontend:latest
 
     container_name: nginx
     environment:
-      NODE_ENV: production
+      - VITE_HOST=http://localhost
+      - VITE_BACKEND_PORT=8000
+
     restart: always
     ports:
-      - 8080:8080
+      - 8080:80
     env_file:
       - .env
     
-  dental-backend:
-    build:
-      context: backend/
-      dockerfile: Dockerfile.prod.yml
-    # image: dinethchathurya/dental-backend:latest
-    # container_name: server
-   # restart: always
-    environment:
-      NODE_ENV: production
-    ports:
-      - 9000:9000
-    env_file:
-      - .env
+  # dental-backend:
+  #   #build:
+  #     # context: backend/
+  #     # dockerfile: Dockerfile.prod.yml
+  #   image: dinethchathurya/dental-backend:latest
+  #   container_name: server
+  #  # restart: always
+  #   environment:
+  #     NODE_ENV: production
+  #   ports:
+  #     - 9000:9000
+  #   env_file:
+  #     - .env
+

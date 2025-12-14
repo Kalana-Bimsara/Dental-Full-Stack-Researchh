@@ -12,8 +12,8 @@ const Booking = () => {
   const [bookingCountsByDate, setBookingCountsByDate] = useState({});
   const [services, setServices] = useState([]);
 
-  const PORT = import.meta.env.VITE_BACKEND_PORT || "9000";
-  const HOST = import.meta.env.VITE_HOST || "http://localhost";
+  const PORT = "__VITE_BACKEND_PORT__";
+  const HOST = "__VITE_HOST__";
 
   useEffect(() => {
     const socket = new WebSocket('ws://localhost:8080');

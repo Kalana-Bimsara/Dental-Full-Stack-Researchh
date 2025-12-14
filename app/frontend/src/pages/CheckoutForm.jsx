@@ -9,7 +9,7 @@ import {
 
 export default function CheckoutForm() {
   // Use ONE env variable for your frontend URL
-  const FRONTEND_URL = import.meta.env.VITE_FRONTEND_URL || "http://localhost:3000";
+  const FRONTEND_URL = "__VITE_FRONTEND_URL__";
 
   const stripe = useStripe();
   const elements = useElements();

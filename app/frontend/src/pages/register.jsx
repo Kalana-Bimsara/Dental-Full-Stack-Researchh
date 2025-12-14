@@ -16,8 +16,8 @@ const Register = () => {
     formState: { errors },
   } = useForm();
 
-  const BACKEND_PORT = import.meta.env.VITE_BACKEND_PORT || "9000";
-  const HOST = import.meta.env.VITE_HOST || "http://localhost";
+  const BACKEND_PORT = "__VITE_BACKEND_PORT__";
+  const HOST ="__VITE_HOST__";
 
   const onSubmit = async (data) => {
     try {

@@ -14,8 +14,8 @@ const Login = () => {
   const navigate = useNavigate();  // Correct hook for navigation
   const location = useLocation(); 
 
-  const BACKEND_PORT = import.meta.env.VITE_BACKEND_PORT || "9000";
-  const HOST = import.meta.env.VITE_HOST || "http://localhost";
+ const BACKEND_PORT = "__VITE_BACKEND_PORT__";
+ const HOST = "__VITE_HOST__";
   
   const {
     register,
@@ -25,6 +25,7 @@ const Login = () => {
 
 
   const onSubmit = async (data) => {
+    console.log("HOST + BACKEND_PORT");
 
     const response = await axios.post(`${HOST}:${BACKEND_PORT}/api/user/login`, data);
     console.log(response.data.token); 
