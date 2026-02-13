@@ -7,6 +7,7 @@ on:
     # don't retrigger the workflow when we commit the metrics file
     paths-ignore:
       - 'metrics/**'
+  workflow_dispatch:
 
 jobs:
   multiarch-build-publish-to-docker-hub:
