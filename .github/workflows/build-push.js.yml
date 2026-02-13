@@ -254,9 +254,7 @@ jobs:
     steps:
       - name: Clone functional tests repo
         run: git clone https://github.com/Kalana-Bimsara/functional_tests.git
-      - name: Build Docker Image
-        working-directory: functional_tests
-        run: docker compose build
+     
 
       - name: Run RBT Suite
         working-directory: functional_tests
