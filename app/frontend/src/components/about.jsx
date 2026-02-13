@@ -16,7 +16,7 @@ const About = () => {
                 At Dental Clinic, we always try our best to explain your
                 treatment options and all the costs clearly. Our goal is to make
                 sure every patient feels confident, well-informed, and actively
-                part of their treatment plan.
+                part of their treatment plan*.
               </p>
               <p className="mb-4">
                 We provide top-notch dental services with state-of-the-art
