@@ -232,18 +232,18 @@ jobs:
       contents: read
 
     steps:
-      - name: Clone repo
+      - name: Clone functional tests repo
         run: git clone https://github.com/Kalana-Bimsara/functional_tests.git
-      - name: Compose up
+      - name: Run Full Suite
+        working-directory: functional_tests
         env:
           MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
           MONGODB_DBNAME: "test"
         run: |
-          cd playwright-rbt-suites
-          docker compose version
+          
           docker compose up -d --build
-          docker compose run --rm tests-all
-        working-directory: functional_tests
+          docker compose run --rm tests-full
+       
       
   Run-rbt-Testing:
     name: Run RBT Test Cases on Testing environment
@@ -253,18 +253,20 @@ jobs:
       contents: read
 
     steps:
-      - name: Clone repo
+      - name: Clone functional tests repo
         run: git clone https://github.com/Kalana-Bimsara/functional_tests.git
-      - name: Compose up
+      - name: Build Docker Image
+        working-directory: functional_tests
+        run: docker compose build
+
+      - name: Run RBT Suite
+        working-directory: functional_tests
+
         env:
           MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
           MONGODB_DBNAME: "test"
-        run: |
-          cd playwright-rbt-suites
-          docker compose version
-          docker compose up -d --build
-          docker compose run --rm tests-rbt
-        working-directory: functional_tests
+        run: docker compose run --rm tests-rbt
+       
       
   deploy-ec2-prod-environment-a:
     name: Deploy New images to Production-a environment EC2 via SSH
