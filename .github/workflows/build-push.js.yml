@@ -243,6 +243,14 @@ jobs:
           MONGODB_DBNAME: "test"
         run: |
           docker compose run --rm tests-full
+
+      - name: Upload Full Suite Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-suite-report-${{ github.run_id }}
+          path: functional_tests/test-results/full
+
        
       
   Run-rbt-Testing:
@@ -264,8 +272,15 @@ jobs:
           MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
           MONGODB_DBNAME: "test"
         run: docker compose run --rm tests-rbt
-       
-      
+
+      - name: Upload RBT Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rbt-report-${{ github.run_id }}
+          path: functional_tests/test-results/rbt
+
+        
   deploy-ec2-prod-environment-a:
     name: Deploy New images to Production-a environment EC2 via SSH
     needs: [Run-All-Testing]
