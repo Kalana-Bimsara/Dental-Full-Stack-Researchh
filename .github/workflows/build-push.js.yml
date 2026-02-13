@@ -241,8 +241,6 @@ jobs:
           MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
           MONGODB_DBNAME: "test"
         run: |
-          
-          docker compose up -d --build
           docker compose run --rm tests-full
        
       
