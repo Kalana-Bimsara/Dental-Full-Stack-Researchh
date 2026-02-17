@@ -292,6 +292,12 @@ jobs:
         run: |
           git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Kalana-Bimsara/functional_tests.git
 
+      - name: Download Full Suite Report
+        uses: actions/download-artifact@v4
+        with:
+          name: full-suite-report-${{ github.run_id }}
+          path: functional_tests/test-results/full
+
       - name: Install dependencies
         working-directory: functional_tests
         run: npm ci
@@ -308,8 +314,9 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add risk/risk-data.json
-          git commit -m "Update risk scores from full suite"
+          git commit -m "Update risk scores from full suite" || echo "No changes"
           git push
+
 
         
   deploy-ec2-prod-environment-a:
