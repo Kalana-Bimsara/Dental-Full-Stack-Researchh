@@ -251,7 +251,26 @@ jobs:
           name: full-suite-report-${{ github.run_id }}
           path: functional_tests/test-results/full
 
-       
+  update-risk:
+    needs: Run-All-Testing
+    if: always()                      
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update risk-data.json
+        run: |
+          node risk/scripts/update-failure-history.js
+
+      - name: Commit updated risk file
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add risk/risk-data.json
+          git commit -m "Update risk scores"
+          git push
+     
       
   Run-rbt-Testing:
     name: Run RBT Test Cases on Testing environment
