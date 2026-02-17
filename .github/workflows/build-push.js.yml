@@ -290,7 +290,7 @@ jobs:
     steps:
       - name: Clone functional tests repo
         run: |
-          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Kalana-Bimsara/functional_tests.git
+          git clone https://x-access-token:${{ secrets.FUNCTIONAL_TESTS_PAT }}@github.com/Kalana-Bimsara/functional_tests.git
 
       - name: Download Full Suite Report
         uses: actions/download-artifact@v4
@@ -315,7 +315,8 @@ jobs:
           git config user.email "actions@github.com"
           git add risk/risk-data.json
           git commit -m "Update risk scores from full suite" || echo "No changes"
-          git push
+          git push https://x-access-token:${{ secrets.FUNCTIONAL_TESTS_PAT }}@github.com/Kalana-Bimsara/functional_tests.git
+
 
 
         
