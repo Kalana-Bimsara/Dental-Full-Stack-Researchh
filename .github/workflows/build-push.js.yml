@@ -235,7 +235,8 @@ jobs:
 
     steps:
       - name: Clone functional tests repo
-        run: git clone https://github.com/Kalana-Bimsara/functional_tests.git
+        run: |
+          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Kalana-Bimsara/functional_tests.git
       - name: Run Full Suite
         working-directory: functional_tests
         env:
@@ -250,21 +251,6 @@ jobs:
         with:
           name: full-suite-report-${{ github.run_id }}
           path: functional_tests/test-results/full
-
-  update-risk:
-    needs: Run-All-Testing
-    if: always()
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Clone functional tests repo
-        run: git clone https://github.com/Kalana-Bimsara/functional_tests.git
-
-      - name: Run Risk Update
-        working-directory: functional_tests
-        run: docker compose run --rm risk-update
-
-     
       
   Run-rbt-Testing:
     name: Run RBT Test Cases on Testing environment
@@ -292,6 +278,38 @@ jobs:
         with:
           name: rbt-report-${{ github.run_id }}
           path: functional_tests/test-results/rbt
+
+  update-risk:
+    name: Update Risk Scores
+    runs-on: ubuntu-latest
+    needs: Run-All-Testing
+    if: always()
+    permissions:
+      contents: write
+
+    steps:
+      - name: Clone functional tests repo
+        run: |
+          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Kalana-Bimsara/functional_tests.git
+
+      - name: Install dependencies
+        working-directory: functional_tests
+        run: npm ci
+
+      - name: Update risk data
+        working-directory: functional_tests
+        run: |
+          node risk/scripts/update-failure-history.js
+          node risk/scripts/update-execution-cost.js
+
+      - name: Commit updated risk file
+        working-directory: functional_tests
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add risk/risk-data.json
+          git commit -m "Update risk scores from full suite"
+          git push
 
         
   deploy-ec2-prod-environment-a:
