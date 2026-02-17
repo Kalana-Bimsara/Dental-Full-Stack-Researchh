@@ -253,23 +253,17 @@ jobs:
 
   update-risk:
     needs: Run-All-Testing
-    if: always()                      
+    if: always()
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Clone functional tests repo
+        run: git clone https://github.com/Kalana-Bimsara/functional_tests.git
 
-      - name: Update risk-data.json
-        run: |
-          node risk/scripts/update-failure-history.js
+      - name: Run Risk Update
+        working-directory: functional_tests
+        run: docker compose run --rm risk-update
 
-      - name: Commit updated risk file
-        run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add risk/risk-data.json
-          git commit -m "Update risk scores"
-          git push
      
       
   Run-rbt-Testing:
