@@ -24,9 +24,9 @@ const AddServiceModal = (props) => {
     formState: { errors },
     reset
   } = useForm();
-  
+
   const onSubmit = async (data) => {
-    
+
     try {
       const response = await axios.post(`${HOST}:${PORT}/api/admin/addservice`, data, config);
       if (response.data) {
@@ -34,7 +34,7 @@ const AddServiceModal = (props) => {
         reset();
         props.func();
       }
-      
+
     } catch (error) {
       console.log(error);
       alert("something wrong");
@@ -77,9 +77,8 @@ const AddServiceModal = (props) => {
                   </label>
                   <input
                     type="text"
-                    className={`form-control ${
-                      errors.serviceName ? "is-invalid" : ""
-                    }`}
+                    className={`form-control ${errors.serviceName ? "is-invalid" : ""
+                      }`}
                     id="serviceName"
                     placeholder="Enter Service Name"
                     {...register("serviceName", {
@@ -105,15 +104,14 @@ const AddServiceModal = (props) => {
                   </label>
                   <input
                     type="text"
-                    className={`form-control ${
-                      errors.servicePrice ? "is-invalid" : ""
-                    }`}
+                    className={`form-control ${errors.servicePrice ? "is-invalid" : ""
+                      }`}
                     id="servicePrice"
                     placeholder="Enter Service Price"
                     {...register("servicePrice", {
                       required: "Service price is required",
                       pattern: {
-                        value: /^[0-9]+(\.[0-9]{1,2})?$/, 
+                        value: /^[0-9]+(\.[0-9]{1,2})?$/,
                         message: "Invalid price format",
                       },
                     })}
@@ -125,15 +123,27 @@ const AddServiceModal = (props) => {
                   )}
                 </div>
 
-                <button type="submit" className="btn btn-primary">
+                {/* <button type="submit" className="btn btn-primary">
                   Add Service
                 </button>
+                 */}
+
+
+                <button
+                  type="button"
+                  className="btn btn-success"
+                  data-bs-toggle="modal"
+                  data-bs-target="#addServiceModal"
+                >
+                  Add Service
+                </button>
+
                 <button
                   type="button"
                   className="btn btn-secondary"
                   data-bs-dismiss="modal"
                   aria-label="Close"
-                  onClick={() => reset()} 
+                  onClick={() => reset()}
                 >
                   Cancel
                 </button>
