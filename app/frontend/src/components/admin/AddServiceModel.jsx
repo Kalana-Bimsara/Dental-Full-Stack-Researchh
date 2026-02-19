@@ -27,12 +27,12 @@ const AddServiceModal = (props) => {
 
   const onSubmit = async (data) => {
 
-  //  alert("Adding service...");
+    console.log("Submitting service:", data);
 
     try {
       const response = await axios.post(`${HOST}:${PORT}/api/admin/addservice`, data, config);
       if (response.data) {
-       // alert(response.data);
+        alert(response.data);
         alert("Service added successfully!");
         reset();
         props.func();
