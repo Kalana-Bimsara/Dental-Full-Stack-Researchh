@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import DashboardAppoimantsDoctorOption from "./adminComponents/dashboardAppoimentsDoctorOption";
 import DashboardDatesTableRow from "./adminComponents/dashboardDatesTableRow";
-  import Swal from "sweetalert2";
 
 const AddAvailableDateModal = () => {
 
@@ -39,55 +38,22 @@ const AddAvailableDateModal = () => {
   const PORT = "__VITE_BACKEND_PORT__";
 
 
-  // const onSubmit = async (data) => {
-
-  //   try {
-  //     const response = await axios.post(
-  //       `${HOST}:${PORT}/api/admin/adddate`, data, config
-  //     );
-  //     if (response.data) {
-  //       alert(response.data);
-  //       reset();
-  //       getdates();
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //     alert(error);
-  //   }
-  // };
-
   const onSubmit = async (data) => {
-  try {
-    const response = await axios.post(
-      `${HOST}:${PORT}/api/admin/adddate`,
-      data,
-      config
-    );
 
-    if (response.data) {
-      await Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: response.data.message || response.data,
-        confirmButtonColor: "#3085d6",
-      });
-
-      reset();
-      getdates();
+    try {
+      const response = await axios.post(
+        `${HOST}:${PORT}/api/admin/adddate`, data, config
+      );
+      if (response.data) {
+        alert(response.data);
+        reset();
+        getdates();
+      }
+    } catch (error) {
+      console.log(error);
+      alert(error);
     }
-  } catch (error) {
-    console.error(error);
-
-    await Swal.fire({
-      icon: "error",
-      title: "Error",
-      text:
-        error.response?.data?.message ||
-        "Something went wrong. Please try again.",
-      confirmButtonColor: "#d33",
-    });
-  }
-};
+  };
 
   async function getDoctors() {
     try {
