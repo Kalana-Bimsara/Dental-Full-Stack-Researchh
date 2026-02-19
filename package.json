@@ -11,9 +11,12 @@
   },
   "devDependencies": {
     "eslint": "^8.0.0",
+    "eslint-plugin-jsx-a11y": "^6.0.0",
     "eslint-plugin-react": "^7.0.0",
     "eslint-plugin-react-hooks": "^4.0.0",
-    "eslint-plugin-jsx-a11y": "^6.0.0",
     "globals": "^15.0.0"
+  },
+  "dependencies": {
+    "sweetalert2": "^11.26.19"
   }
 }
