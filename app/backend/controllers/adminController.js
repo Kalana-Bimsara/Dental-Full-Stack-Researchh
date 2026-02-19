@@ -169,7 +169,7 @@ export const AdminAddService = async (req, res) => {
 
     if (error.code === 11000) {
       return res.status(400).json({
-        message: "Service name already exists",
+        message: error.message,
       });
     }
 
