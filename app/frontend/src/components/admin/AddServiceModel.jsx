@@ -40,7 +40,7 @@ const AddServiceModal = (props) => {
 
     } catch (error) {
       console.log(error);
-      alert("something wrong");
+      alert(error.response?.data?.message || "Error adding service");
     }
   };
 
