@@ -32,7 +32,7 @@ const NavbarComponent = () => {
     navigate("/");
   };
 
-  const isadmin = sessionStorage.getItem("isadmin") === "true";
+  const isadmin = sessionStorage.getItem("isAdmin") === "true";
 
 
   return (
