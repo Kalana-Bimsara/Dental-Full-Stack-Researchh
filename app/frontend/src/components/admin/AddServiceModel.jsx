@@ -33,6 +33,7 @@ const AddServiceModal = (props) => {
       const response = await axios.post(`${HOST}:${PORT}/api/admin/addservice`, data, config);
       if (response.data) {
         alert(response.data);
+        alert("Service added successfully!");
         reset();
         props.func();
       }
