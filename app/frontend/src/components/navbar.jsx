@@ -32,6 +32,8 @@ const NavbarComponent = () => {
     navigate("/");
   };
 
+  const isadmin = sessionStorage.getItem("isadmin") === "true";
+
 
   return (
     <>
@@ -121,6 +123,13 @@ const NavbarComponent = () => {
               >
                 Log Out
               </button>
+            )}
+
+
+            {isadmin && (
+              <Link to="/dashboard" className="btn btn-warning btn-lg ms-3">
+                Admin Dashboard
+              </Link>
             )}
           </div>
         </div>

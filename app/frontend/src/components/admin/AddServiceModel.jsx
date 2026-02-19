@@ -14,7 +14,7 @@ const AddServiceModal = (props) => {
   // Config for Authorization header
   const config = {
     headers: {
-      Authorization: `Bearer ${token}`, // Bearer token
+      Authorization: `Bearer ${token}`, 
     },
   };
 
@@ -27,12 +27,12 @@ const AddServiceModal = (props) => {
 
   const onSubmit = async (data) => {
 
-    alert("Adding service...");
+  //  alert("Adding service...");
 
     try {
       const response = await axios.post(`${HOST}:${PORT}/api/admin/addservice`, data, config);
       if (response.data) {
-        alert(response.data);
+       // alert(response.data);
         alert("Service added successfully!");
         reset();
         props.func();
