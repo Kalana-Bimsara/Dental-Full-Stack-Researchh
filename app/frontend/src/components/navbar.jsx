@@ -78,7 +78,7 @@ const NavbarComponent = () => {
               <li className="nav-item">
                 <Link
                   className="nav-link text-white"
-                  to="/price"
+                  to="/prices"
                   style={{ fontSize: "1.2rem" }}
                 >
                   Prices
