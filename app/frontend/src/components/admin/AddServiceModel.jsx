@@ -27,6 +27,8 @@ const AddServiceModal = (props) => {
 
   const onSubmit = async (data) => {
 
+    alert("Adding service...");
+
     try {
       const response = await axios.post(`${HOST}:${PORT}/api/admin/addservice`, data, config);
       if (response.data) {
@@ -123,21 +125,11 @@ const AddServiceModal = (props) => {
                   )}
                 </div>
 
-                {/* <button type="submit" className="btn btn-primary">
+                <button type="submit" className="btn btn-primary">
                   Add Service
                 </button>
-                 */}
-
-
-                <button
-                  type="button"
-                  className="btn btn-success"
-                  data-bs-toggle="modal"
-                  data-bs-target="#addServiceModal"
-                >
-                  Add Service
-                </button>
-
+              
+         
                 <button
                   type="button"
                   className="btn btn-secondary"
