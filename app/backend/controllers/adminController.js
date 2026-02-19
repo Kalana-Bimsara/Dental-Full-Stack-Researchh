@@ -36,25 +36,68 @@ export const AdminGetDoctors = async (req, res) => {
 
 };
 
-export const AdminAddDate = async (req,res) =>{
+export const AdminAddDate = async (req, res) => {
+  const { doctor, appointmentDate } = req.body;
 
-    const {doctor, appointmentDate} = req.body;
-
-    try {
-        const newDate = new Availabledate({
-            doctor_id : doctor,
-            date : appointmentDate,
-        });
-
-        const addedDate = await newDate.save();
-        if (addedDate) {
-            res.json("date added");
-        }
-
-    } catch (error) {
-        console.log(error);
+  try {
+    if (!doctor || !appointmentDate) {
+      return res.status(400).json({ message: "Doctor and date are required" });
     }
+
+    // Normalize today's date (remove time)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const selectedDate = new Date(appointmentDate);
+    selectedDate.setHours(0, 0, 0, 0);
+
+    // Reject today and past dates
+    if (selectedDate <= today) {
+      return res.status(400).json({
+        message: "Only future dates (from tomorrow onward) are allowed",
+      });
+    }
+
+    const newDate = new Availabledate({
+      doctor_id: doctor,
+      date: selectedDate,
+    });
+
+    const addedDate = await newDate.save();
+
+    return res.status(201).json({
+      message: "Date added successfully",
+      data: addedDate,
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Server error",
+    });
+  }
 };
+
+
+// export const AdminAddDate = async (req,res) =>{
+
+//     const {doctor, appointmentDate} = req.body;
+
+//     try {
+//         const newDate = new Availabledate({
+//             doctor_id : doctor,
+//             date : appointmentDate,
+//         });
+
+//         const addedDate = await newDate.save();
+//         if (addedDate) {
+//             res.json("date added");
+//         }
+
+//     } catch (error) {
+//         console.log(error);
+//     }
+// };
 
 export const AdminAddService = async (req, res) => {
     const {serviceName, servicePrice} = req.body;

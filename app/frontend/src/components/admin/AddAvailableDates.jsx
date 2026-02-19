@@ -6,14 +6,26 @@ import DashboardDatesTableRow from "./adminComponents/dashboardDatesTableRow";
 
 const AddAvailableDateModal = () => {
 
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Get tomorrow
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
+  // Format to YYYY-MM-DD
+  const minDate = tomorrow.toISOString().split("T")[0];
   const token = sessionStorage.getItem('token');
+
   const config = {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   };
+
   const [doctors, setDoctors] = useState([]);
-  const [dates ,setDates] = useState([]);
+  const [dates, setDates] = useState([]);
 
   const {
     register,
@@ -22,14 +34,14 @@ const AddAvailableDateModal = () => {
     reset,
   } = useForm();
 
-  const HOST ="__VITE_HOST__";
+  const HOST = "__VITE_HOST__";
   const PORT = "__VITE_BACKEND_PORT__";
 
   const onSubmit = async (data) => {
 
     try {
       const response = await axios.post(
-        `${HOST}:${PORT}/api/admin/adddate`,data, config
+        `${HOST}:${PORT}/api/admin/adddate`, data, config
       );
       if (response.data) {
         alert(response.data);
@@ -45,7 +57,7 @@ const AddAvailableDateModal = () => {
   async function getDoctors() {
     try {
       const response = await axios.get(
-        `${HOST}:${PORT}/api/admin/getdoctors`,config
+        `${HOST}:${PORT}/api/admin/getdoctors`, config
       );
       if (response.data) {
         setDoctors(response.data);
@@ -57,14 +69,14 @@ const AddAvailableDateModal = () => {
 
   async function getdates() {
     try {
-        const response = await axios.get(
-            `${HOST}:${PORT}/getdates`
-          );
-          if (response.data) {
-            setDates(response.data);
-          }
+      const response = await axios.get(
+        `${HOST}:${PORT}/api/admin/getdates`, config
+      );
+      if (response.data) {
+        setDates(response.data);
+      }
     } catch (error) {
-        console.log(error);
+      console.log(error);
     }
   }
 
@@ -161,7 +173,35 @@ const AddAvailableDateModal = () => {
                     <label htmlFor="appointmentDate" className="form-label">
                       Select a Date
                     </label>
+
+
                     <input
+                      type="date"
+                      className="form-control"
+                      id="appointmentDate"
+                      min={minDate} // UI restriction
+                      {...register("appointmentDate", {
+                        required: "Please select a date",
+                        validate: (value) => {
+                          const selectedDate = new Date(value);
+                          selectedDate.setHours(0, 0, 0, 0);
+
+                          if (selectedDate <= today) {
+                            return "Please select a future date (from tomorrow onward)";
+                          }
+                          return true;
+                        },
+                      })}
+                    />
+
+                    {errors.appointmentDate && (
+                      <span className="text-danger">
+                        {errors.appointmentDate.message}
+                      </span>
+                    )}
+
+
+                    {/* <input
                       type="date"
                       className="form-control"
                       id="appointmentDate"
@@ -173,7 +213,7 @@ const AddAvailableDateModal = () => {
                       <span className="text-danger">
                         {errors.appointmentDate.message}
                       </span>
-                    )}
+                    )} */}
                   </div>
 
                   <div className="modal-footer">
