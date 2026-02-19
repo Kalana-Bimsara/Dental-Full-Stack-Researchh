@@ -9,7 +9,6 @@ const serviceSchema = new mongoose.Schema({
     price: {
         type : String,
         required :true,
-        unique: true,
     },
 });
 

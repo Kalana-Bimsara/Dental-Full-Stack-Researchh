@@ -99,18 +99,50 @@ export const AdminAddDate = async (req, res) => {
 //     }
 // };
 
+// export const AdminAddService = async (req, res) => {
+//     const {serviceName, servicePrice} = req.body;
+//         try {
+//         const newService = new ServiceModel({
+//             name :serviceName,
+//             price: servicePrice,
+//         }); 
+
+//          const saved = await newService.save();
+//          res.json("success");
+//     } catch (error) {
+//         console.log(error);
+//         res.status(500).json({ message: error.message });
+//     }
+// }
+
+
 export const AdminAddService = async (req, res) => {
-    const {serviceName, servicePrice} = req.body;
-        try {
-        const newService = new ServiceModel({
-            name :serviceName,
-            price: servicePrice,
+  const { serviceName, servicePrice } = req.body;
 
-        }); 
+  try {
+    const newService = new ServiceModel({
+      name: serviceName,
+      price: servicePrice,
+    });
 
-         const saved = await newService.save();
-         res.json("success");
-    } catch (error) {
-        console.log(error);
+    const saved = await newService.save();
+
+    return res.status(201).json({
+      message: "Service added successfully",
+      data: saved,
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    if (error.code === 11000) {
+      return res.status(400).json({
+        message: "Service name already exists",
+      });
     }
-}
+
+    return res.status(500).json({
+      message: "Server error",
+    });
+  }
+};
