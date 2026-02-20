@@ -45,7 +45,8 @@ const AddAvailableDateModal = () => {
         `${HOST}:${PORT}/api/admin/adddate`, data, config
       );
       if (response.data) {
-        alert(response.data);
+        alert("Date added successfully!");
+        console.log("Added date:", response.data);
         reset();
         getdates();
       }
