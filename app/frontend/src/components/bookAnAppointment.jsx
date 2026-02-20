@@ -82,7 +82,7 @@ const BookAnAppointment = () => {
 
   async function getDoctors() {
     try {
-      const response = await axios.get(`${HOST}/api/api/getDoctors`);
+      const response = await axios.get(`${HOST}/api/getDoctors`);
       if (response.data) {
         setDoctors(response.data);
       }
