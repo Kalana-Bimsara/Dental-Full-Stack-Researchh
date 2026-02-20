@@ -42,7 +42,7 @@ const AddAvailableDateModal = () => {
 
     try {
       const response = await axios.post(
-        `${HOST}:${PORT}/api/admin/adddate`, data, config
+        `${HOST}/api/api/admin/adddate`, data, config
       );
       if (response.data) {
         alert("Date added successfully!");
@@ -59,7 +59,7 @@ const AddAvailableDateModal = () => {
   async function getDoctors() {
     try {
       const response = await axios.get(
-        `${HOST}:${PORT}/api/admin/getdoctors`, config
+        `${HOST}/api/api/admin/getdoctors`, config
       );
       if (response.data) {
         setDoctors(response.data);
@@ -72,7 +72,7 @@ const AddAvailableDateModal = () => {
   async function getdates() {
     try {
       const response = await axios.get(
-        `${HOST}:${PORT}/getdates`, config
+        `${HOST}/getdates`, config
       );
       if (response.data) {
         setDates(response.data);

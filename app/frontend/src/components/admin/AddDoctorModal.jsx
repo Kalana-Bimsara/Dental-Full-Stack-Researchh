@@ -30,7 +30,7 @@ const AddDoctorModal = () => {
   const onSubmit = async (data) => {
     
     try {
-      const response = await axios.post(`${HOST}:${POST}/api/admin/addDoctor`, data, config);
+      const response = await axios.post(`${HOST}/api/api/admin/addDoctor`, data, config);
       if (response.data) {
         alert(response.data);
         reset();
@@ -45,7 +45,7 @@ const AddDoctorModal = () => {
 
   async function getDoctors() {
     try {
-      const response = await axios.get(`${HOST}:${POST}/api/admin/getdoctors`, config);
+      const response = await axios.get(`${HOST}/api/api/admin/getdoctors`, config);
       if (response.data) {
         setDoctors(response.data);
       }

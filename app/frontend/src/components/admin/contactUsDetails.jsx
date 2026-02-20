@@ -20,7 +20,7 @@ const ContactUsDetails = () => {
   async function fetchContactUsDetails() {
     try {
       const response = await axios.get(
-        `${HOST}:${PORT}/api/admin/getcontactus`,config
+        `${HOST}/api/api/admin/getcontactus`,config
       );
       if (response.data) {
         setContactUsDetails(response.data);

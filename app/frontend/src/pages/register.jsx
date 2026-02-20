@@ -21,7 +21,7 @@ const Register = () => {
 
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post(`${HOST}:${BACKEND_PORT}/api/user/register`, data);
+      const response = await axios.post(`${HOST}/api/api/user/register`, data);
 
       if (response.status === 201 || response.status === 200) {
         setShowSuccessModal(true);
