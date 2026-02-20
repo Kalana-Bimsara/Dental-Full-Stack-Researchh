@@ -98,7 +98,7 @@ const Booking = () => {
       </div>
       </section>
 
-      <section id="availability" className="shadow-box bg-custom-blue">
+      {/* <section id="availability" className="shadow-box bg-custom-blue">
       <div className="mt-4">
         <h3 className="text-center">availability</h3>
         <table className="table table-striped" id="doctorTable">
@@ -124,7 +124,7 @@ const Booking = () => {
           </table>
 
       </div>
-      </section>
+      </section> */}
 
       <div className="container my-5">
         <BookAnAppointment />
