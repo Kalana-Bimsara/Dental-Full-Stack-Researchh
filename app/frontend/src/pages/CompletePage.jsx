@@ -47,7 +47,7 @@ export default function CompletePage() {
           status === "succeeded" &&
           !sessionStorage.getItem("bookingSaved")
         ) {
-        const response = await axios.post(`${HOST}//:${BACKEND_PORT}/saveBooking`, {
+        const response = await axios.post(`${HOST}/api/saveBooking`, {
           patientName: sessionStorage.getItem("patientName"),
           mobileNumber: sessionStorage.getItem("mobileNumber"),
           emailAddress: sessionStorage.getItem("emailAddress"),

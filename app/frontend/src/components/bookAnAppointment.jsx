@@ -45,7 +45,7 @@ const BookAnAppointment = () => {
     console.log("Form Data:", data);
     try {
       const response = await axios.post(
-        `${HOST}:${BACKEND_PORT}/create-payment-intent`,
+        `${HOST}/api/create-payment-intent`,
         {
           
           patientName : data.patientName,
