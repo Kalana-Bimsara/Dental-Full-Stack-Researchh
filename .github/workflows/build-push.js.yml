@@ -126,7 +126,7 @@ jobs:
               -e HOST="http://${{ secrets.EC2_TEST_HOST }}" \
               -e MONGO_URI="${{ secrets.MONGO_URI }}" \
               -e STRIPE_SECRET_KEY="${{ secrets.STRIPE_SECRET_KEY }}" \
-              -p 9000:9000 \
+              -p 127.0.0.1:9000:9000 \
               "${{ secrets.DOCKER_USERNAME }}/dental-backend:latest"
 
             # ----- run frontend (container listens on 8080; expose public 80) -----
@@ -137,7 +137,7 @@ jobs:
               -e VITE_BACKEND_PORT="9000" \
               -e VITE_FRONTEND_URL="http://${{ secrets.EC2_TEST_HOST }}" \
               -e VITE_HOST="http://${{ secrets.EC2_TEST_HOST }}" \
-              -p 80:80 \
+              -p 127.0.0.1:8080:80 \
               "${{ secrets.DOCKER_USERNAME }}/dental-frontend:latest"
 
             # ----- health check -----
