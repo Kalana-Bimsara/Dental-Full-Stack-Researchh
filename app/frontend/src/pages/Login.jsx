@@ -26,7 +26,7 @@ const Login = () => {
 
   const onSubmit = async (data) => {
 
-    const response = await axios.post(`${HOST}/api/user/login`, data);
+    const response = await axios.post(`${HOST}/api/login`, data);
     console.log(response.data.token); 
 
     if (response.data.token) {
