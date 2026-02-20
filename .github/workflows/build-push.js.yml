@@ -374,7 +374,7 @@ jobs:
               -e HOST="https://${{ secrets.EC2_PROD_01_HOST }}" \
               -e MONGO_URI="${{ secrets.MONGO_URI }}" \
               -e STRIPE_SECRET_KEY="${{ secrets.STRIPE_SECRET_KEY }}" \
-              -p 9000:9000 \
+              -p 127.0.0.1:9000:9000 \
               "${{ secrets.DOCKER_USERNAME }}/dental-backend:latest"
 
             # ----- run frontend (container listens on 8080; expose public 80) -----
@@ -385,7 +385,7 @@ jobs:
               -e VITE_BACKEND_PORT="9000" \
               -e VITE_FRONTEND_URL="https://${{ secrets.EC2_PROD_01_HOST }}" \
               -e VITE_HOST="https://${{ secrets.EC2_PROD_01_HOST }}" \
-              -p 80:80 \
+              -p 127.0.0.1:8080:80 \
               "${{ secrets.DOCKER_USERNAME }}/dental-frontend:latest"
 
 
@@ -447,7 +447,8 @@ jobs:
               -e HOST="https://${{ secrets.EC2_PROD_B_HOST }}" \
               -e MONGO_URI="${{ secrets.MONGO_URI }}" \
               -e STRIPE_SECRET_KEY="${{ secrets.STRIPE_SECRET_KEY }}" \
-              -p 9000:9000 \
+              -p 127.0.0.1:9000:9000 \
+
               "${{ secrets.DOCKER_USERNAME }}/dental-backend:latest"
 
             # ----- run frontend (container listens on 8080; expose public 80) -----
@@ -458,7 +459,7 @@ jobs:
               -e VITE_BACKEND_PORT="9000" \
               -e VITE_FRONTEND_URL="https://${{ secrets.EC2_PROD_B_HOST }}" \
               -e VITE_HOST="https://${{ secrets.EC2_PROD_B_HOST }}" \
-              -p 80:80 \
+              -p 127.0.0.1:8080:80 \
               "${{ secrets.DOCKER_USERNAME }}/dental-frontend:latest"
 
 
