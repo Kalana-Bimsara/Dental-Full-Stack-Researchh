@@ -92,7 +92,7 @@ const BookAnAppointment = () => {
   }
   async function getDates() {
     try {
-      const response = await axios.get(`${HOST}:${BACKEND_PORT}/getDates`);
+      const response = await axios.get(`${HOST}/api/getDates`);
       if (response.data) {
         setDates(response.data);
       }
@@ -102,7 +102,7 @@ const BookAnAppointment = () => {
   }
   async function GetServices() {
     try {
-      const response = await axios.get(`${HOST}:${BACKEND_PORT}/getServices`);
+      const response = await axios.get(`${HOST}/api/getServices`);
       if (response.data) {
         setServices(response.data);
       }

@@ -17,7 +17,7 @@ const PriceList = () => {
   async function GetServices() {
     try {
       const response = await axios.get(
-        `${HOST}:${PORT}/getservices`
+        `${HOST}/api/getservices`
       );
       if (response.data) {
         setServices(response.data);
