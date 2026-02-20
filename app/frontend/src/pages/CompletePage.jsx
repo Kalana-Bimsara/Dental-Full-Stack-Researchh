@@ -10,30 +10,51 @@ export default function CompletePage() {
   const HOST = "__VITE_HOST__";
   const BACKEND_PORT = "__VITE_BACKEND_PORT__";
 
+
+console.log("=== CompletePage Mounted ===");
+  console.log("Stripe instance:", stripe);
+  console.log("HOST:", HOST);
+  console.log("BACKEND_PORT:", BACKEND_PORT);
+
   useEffect(() => {
+    console.log("useEffect triggered");
+
     if (!stripe) {
+      console.warn("Stripe not loaded yet");
       return;
     }
 
     const clientSecret = new URLSearchParams(window.location.search).get(
       "payment_intent_client_secret"
     );
+       console.log("Client Secret from URL:", clientSecret);
 
     if (!clientSecret) {
+            console.warn("No clientSecret found in URL");
+
       return;
     } else {
       setClientSecret(clientSecret);
     }
 
     stripe.retrievePaymentIntent(clientSecret).then(({ paymentIntent }) => {
+            console.log("Stripe retrievePaymentIntent response:", paymentIntent);
+
       if (!paymentIntent) {
         return;
       }
 
       setStatus(paymentIntent.status);
       setIntentId(paymentIntent.id);
+
+       console.log("Payment Status:", paymentIntent.status);
+      console.log("Payment Intent ID:", paymentIntent.id);
     });
   }, [stripe]);
+
+    console.log("Current status:", status);
+  console.log("Current intentId:", intentId);
+  console.log("Current clientSecret:", clientSecret);
 
   if (status !== "succeeded") {
     return <h2>Something went wrong. Please try again.</h2>;
@@ -56,6 +77,8 @@ export default function CompletePage() {
           appointmentDate: sessionStorage.getItem("appointmentDate"),
           price: sessionStorage.getItem("price"),
         });
+
+        
 
         if (response) {
           sessionStorage.setItem("bookingSaved", "true");
