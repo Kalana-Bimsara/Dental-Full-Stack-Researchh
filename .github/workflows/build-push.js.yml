@@ -385,7 +385,7 @@ jobs:
               -e VITE_BACKEND_PORT="9000" \
               -e VITE_FRONTEND_URL="http://${{ secrets.EC2_PROD_01_HOST }}" \
               -e VITE_HOST="http://${{ secrets.EC2_PROD_01_HOST }}" \
-              -p 80:8080 \
+              -p 80:80 \
               "${{ secrets.DOCKER_USERNAME }}/dental-frontend:latest"
 
 
