@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-    # don't retrigger the workflow when we commit the metrics file
+    # don't retrigger the workflow when we commit the metrics file.
     paths-ignore:
       - 'metrics/**'
   workflow_dispatch:
