@@ -46,7 +46,7 @@ const AddDoctorModal = () => {
   const onSubmit = async (data) => {
   try {
     const response = await axios.post(
-      "/api/admin/addDoctor",
+      "/api/api/admin/addDoctor",
       data,
       config
     );
