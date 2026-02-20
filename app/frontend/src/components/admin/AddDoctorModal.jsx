@@ -88,7 +88,7 @@ const AddDoctorModal = () => {
   async function getDoctors() {
   try {
     const response = await axios.get(
-      "/api/admin/getdoctors",
+      "/api/api/admin/getdoctors",
       config
     );
 
