@@ -1,9 +1,9 @@
 services:
   dental-frontend:
-    # build:
-      # context: frontend/
-      # dockerfile: Dockerfile.nginx.prod.yml
-    image: kalanabim7/dental-frontend:latest
+    build:
+      context: frontend/
+      dockerfile: Dockerfile.nginx.prod.yml
+    # image: kalanabim7/dental-frontend:latest
 
     container_name: nginx
     environment:
