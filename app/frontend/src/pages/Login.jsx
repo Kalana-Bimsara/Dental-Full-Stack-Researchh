@@ -25,9 +25,8 @@ const Login = () => {
 
 
   const onSubmit = async (data) => {
-    console.log("HOST + BACKEND_PORT");
 
-    const response = await axios.post(`${HOST}:${BACKEND_PORT}/api/user/login`, data);
+    const response = await axios.post(`${HOST}/api/user/login`, data);
     console.log(response.data.token); 
 
     if (response.data.token) {
