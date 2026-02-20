@@ -11,6 +11,7 @@ export default function CheckoutForm() {
   // Use ONE env variable for your frontend URL
   const FRONTEND_URL = "__VITE_FRONTEND_URL__";
   const host = window.location.origin;
+  console.log("Current host:", host);
   const stripe = useStripe();
   const elements = useElements();
 
@@ -27,7 +28,7 @@ export default function CheckoutForm() {
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: `https://${host}/complete`,
+        return_url: `${host}/complete`,
        // return_url: `https://www.google.com`,
       },
     });
