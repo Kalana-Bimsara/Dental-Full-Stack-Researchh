@@ -19,6 +19,7 @@ export default function CheckoutForm() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
+    console.log("Current host:", host);
     e.preventDefault();
 
     if (!stripe || !elements) return;
@@ -28,7 +29,7 @@ export default function CheckoutForm() {
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: `${host}/complete`,
+        return_url: `${FRONTEND_URL}/complete`, // Use the env variable here
        // return_url: `https://www.google.com`,
       },
     });
