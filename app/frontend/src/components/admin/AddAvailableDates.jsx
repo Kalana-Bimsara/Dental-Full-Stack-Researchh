@@ -72,7 +72,7 @@ const AddAvailableDateModal = () => {
   async function getdates() {
     try {
       const response = await axios.get(
-        `${HOST}:${PORT}/api/admin/getdates`, config
+        `${HOST}:${PORT}/getdates`, config
       );
       if (response.data) {
         setDates(response.data);
