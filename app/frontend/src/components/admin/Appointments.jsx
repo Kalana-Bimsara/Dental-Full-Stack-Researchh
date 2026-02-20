@@ -14,7 +14,7 @@ const Appointments = () => {
     async function GetBookingAvailable() {
       try {
         const response = await axios.get(
-          `${HOST}/api/api/getBookings`
+          `${HOST}/api/getBookings`
         );
         if (response.data) {
           setBookings(response.data);
