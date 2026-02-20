@@ -27,34 +27,83 @@ const AddDoctorModal = () => {
     
   } = useForm();
 
-  const onSubmit = async (data) => {
+  // const onSubmit = async (data) => {
     
-    try {
-      const response = await axios.post(`${HOST}/api/api/admin/addDoctor`, data, config);
-      if (response.data) {
-        alert(response.data);
-        reset();
-        getDoctors();
-      }
+  //   try {
+  //     const response = await axios.post(`${HOST}/api/api/admin/addDoctor`, data, config);
+  //     if (response.data) {
+  //       alert(response.data);
+  //       reset();
+  //       getDoctors();
+  //     }
       
-    } catch (error) {
-      console.log(error);
-      alert("something wrong");
+  //   } catch (error) {
+  //     console.log(error);
+  //     alert("something wrong");
+  //   }
+  // };
+
+  const onSubmit = async (data) => {
+  try {
+    const response = await axios.post(
+      "/api/admin/addDoctor",
+      data,
+      config
+    );
+
+    if (response?.data) {
+      alert(
+        typeof response.data === "string"
+          ? response.data
+          : response.data.message || "Doctor added successfully"
+      );
+
+      reset();
+      getDoctors();
     }
-  };
+  } catch (error) {
+    console.log(error);
+    alert(
+      error?.response?.data?.message ||
+      "Something went wrong"
+    );
+  }
+};
+
+
+  // async function getDoctors() {
+  //   try {
+  //     const response = await axios.get(`${HOST}/api/api/admin/getdoctors`, config);
+  //     if (response.data) {
+  //       setDoctors(response.data);
+  //     }
+      
+  //   } catch (error) {
+  //     console.log(error);
+  //   } 
+    
+  // }
+
 
   async function getDoctors() {
-    try {
-      const response = await axios.get(`${HOST}/api/api/admin/getdoctors`, config);
-      if (response.data) {
-        setDoctors(response.data);
-      }
-      
-    } catch (error) {
-      console.log(error);
-    } 
-    
+  try {
+    const response = await axios.get(
+      "/api/admin/getdoctors",
+      config
+    );
+
+    // Ensure array to prevent .map crash
+    const doctorsData = Array.isArray(response.data)
+      ? response.data
+      : response.data?.data || [];
+
+    setDoctors(doctorsData);
+
+  } catch (error) {
+    console.log(error);
+    setDoctors([]); // prevent crash
   }
+}
 
   useEffect(() => {
     getDoctors();

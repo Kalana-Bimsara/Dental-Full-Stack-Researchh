@@ -17,18 +17,37 @@ const ContactUsDetails = () => {
 
   const [contactUsDetails, setContactUsDetails] = useState([]);
 
+  // async function fetchContactUsDetails() {
+  //   try {
+  //     const response = await axios.get(
+  //       `${HOST}/api/api/admin/getcontactus`,config
+  //     );
+  //     if (response.data) {
+  //       setContactUsDetails(response.data);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
+
   async function fetchContactUsDetails() {
-    try {
-      const response = await axios.get(
-        `${HOST}/api/api/admin/getcontactus`,config
-      );
-      if (response.data) {
-        setContactUsDetails(response.data);
-      }
-    } catch (error) {
-      console.log(error);
-    }
+  try {
+    const response = await axios.get(
+      "/api/admin/getcontactus",
+      config
+    );
+
+    const data = Array.isArray(response.data)
+      ? response.data
+      : response.data?.data || [];
+
+    setContactUsDetails(data);
+
+  } catch (error) {
+    console.log(error);
+    setContactUsDetails([]); // prevent map crash
   }
+}
 
   useEffect(() => {
     fetchContactUsDetails();

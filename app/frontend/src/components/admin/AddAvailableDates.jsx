@@ -56,31 +56,70 @@ const AddAvailableDateModal = () => {
     }
   };
 
-  async function getDoctors() {
-    try {
-      const response = await axios.get(
-        `${HOST}/api/api/admin/getdoctors`, config
-      );
-      if (response.data) {
-        setDoctors(response.data);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  // async function getDoctors() {
+  //   try {
+  //     const response = await axios.get(
+  //       `${HOST}/api/api/admin/getdoctors`, config
+  //     );
+  //     if (response.data) {
+  //       setDoctors(response.data);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
 
-  async function getdates() {
-    try {
-      const response = await axios.get(
-        `${HOST}/getdates`, config
-      );
-      if (response.data) {
-        setDates(response.data);
-      }
-    } catch (error) {
-      console.log(error);
-    }
+  async function getDoctors() {
+  try {
+    const response = await axios.get(
+      `${HOST}/api/api/admin/getdoctors`,
+      config
+    );
+
+    const data = Array.isArray(response.data)
+      ? response.data
+      : response.data.data || [];
+
+    setDoctors(data);
+  } catch (error) {
+    console.log(error);
+    setDoctors([]);
   }
+}
+
+  
+
+  // async function getdates() {
+  //   try {
+  //     const response = await axios.get(
+  //       `${HOST}/getdates`, config
+  //     );
+  //     if (response.data) {
+  //       setDates(response.data);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
+
+
+async function getdates() {
+  try {
+    const response = await axios.get(
+      `${HOST}/api/getdates`,
+      config
+    );
+
+    const data = Array.isArray(response.data)
+      ? response.data
+      : response.data.data || [];
+
+    setDates(data);
+  } catch (error) {
+    console.log(error);
+    setDates([]);
+  }
+}
 
   useEffect(() => {
     getDoctors();
