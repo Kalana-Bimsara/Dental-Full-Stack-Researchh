@@ -27,8 +27,8 @@ export default function CheckoutForm() {
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-       // return_url: `${FRONTEND_URL}/complete`,
-        return_url: `https://www.google.com`,
+        return_url: `${FRONTEND_URL}/complete`,
+       // return_url: `https://www.google.com`,
       },
     });
 
