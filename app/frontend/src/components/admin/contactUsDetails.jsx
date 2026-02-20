@@ -33,7 +33,7 @@ const ContactUsDetails = () => {
   async function fetchContactUsDetails() {
   try {
     const response = await axios.get(
-      "/api/admin/getcontactus",
+      "/api/api/admin/getcontactus",
       config
     );
 
