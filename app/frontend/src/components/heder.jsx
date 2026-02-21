@@ -13,7 +13,7 @@ const Header = () => {
             className="shadow p-5 bg-custom-blue rounded mx-auto"
             style={{ maxWidth: "600px" }}
           >
-            <h1>Welcome to Smile Dental this is for testing env with full workflow- QA ENV - aws micro t4 </h1>
+            <h1>Welcome to Smile Dental </h1>
             <p>Providing exceptional dental care for all ages</p>
             <Link to="/booking" className="btn btn-primary btn-lg mt-3">
             Book Online
