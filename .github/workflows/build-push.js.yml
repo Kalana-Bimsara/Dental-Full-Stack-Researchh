@@ -530,8 +530,8 @@ jobs:
             prodA_sl=$(date -d "$PA +5 hours 30 minutes" +"%Y-%m-%d %H:%M:%S")
             prodB_sl=$(date -d "$PB +5 hours 30 minutes" +"%Y-%m-%d %H:%M:%S")
 
-            leadA=$(( (a_epoch - s_epoch) / 60 ))
-            leadB=$(( (b_epoch - s_epoch) / 60 ))
+            leadA=$(echo "scale=2; ($a_epoch - $s_epoch) / 60" | bc)
+            leadB=$(echo "scale=2; ($b_epoch - $s_epoch) / 60" | bc)
 
             echo "${{ github.repository }},${{ github.sha }},$START,$commit_sl,$PA,$prodA_sl,$PB,$prodB_sl,$leadA,$leadB" >> lead_time.csv
 
