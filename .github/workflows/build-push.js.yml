@@ -514,7 +514,7 @@ jobs:
       steps:
         - name: Create lead time CSV
           run: |
-            echo "repo,sha,commit_ts_utc,commit_ts_sl,prodA_ts_utc,prodA_ts_sl,prodB_ts_utc,prodB_ts_sl,lead_time_A_min,lead_time_B_min" > lead_time.csv
+            echo "repo,sha,commit_ts_utc,commit_ts_sl,prodA_ts_utc,prodA_ts_sl,prodB_ts_utc,prodB_ts_sl,leadA_min,leadA_sec,leadB_min,leadB_sec" > lead_time.csv
             # UTC values from GitHub outputs
             START="${{ needs.record-start-ts.outputs.START_TS }}"
             PA="${{ needs.deploy-ec2-prod-environment-a.outputs.PROD_A_TS }}"
@@ -526,17 +526,27 @@ jobs:
             b_epoch=$(date -d "$PB" +"%s")
 
             # convert UTC to SL time
+            
             commit_sl=$(date -d "$START +5 hours 30 minutes" +"%Y-%m-%d %H:%M:%S")
             prodA_sl=$(date -d "$PA +5 hours 30 minutes" +"%Y-%m-%d %H:%M:%S")
             prodB_sl=$(date -d "$PB +5 hours 30 minutes" +"%Y-%m-%d %H:%M:%S")
 
-            leadA=$(echo "scale=2; ($a_epoch - $s_epoch) / 60" | bc)
-            leadB=$(echo "scale=2; ($b_epoch - $s_epoch) / 60" | bc)
+            # total seconds
+            leadA_sec=$(( a_epoch - s_epoch ))
+            leadB_sec=$(( b_epoch - s_epoch ))
 
-            echo "${{ github.repository }},${{ github.sha }},$START,$commit_sl,$PA,$prodA_sl,$PB,$prodB_sl,$leadA,$leadB" >> lead_time.csv
+            # compute minutes and remainder seconds
+            leadA_min=$(( leadA_sec / 60 ))
+            leadA_rem=$(( leadA_sec % 60 ))
 
-            echo "Lead time A (min): $leadA"
-            echo "Lead time B (min): $leadB"
+            leadB_min=$(( leadB_sec / 60 ))
+            leadB_rem=$(( leadB_sec % 60 ))
+
+            # append to CSV
+            echo "${{ github.repository }},${{ github.sha }},$START,$commit_sl,$PA,$prodA_sl,$PB,$prodB_sl,$leadA_min,$leadA_rem,$leadB_min,$leadB_rem" >> lead_time.csv
+
+            echo "Lead time A: $leadA_min minutes $leadA_rem seconds"
+            echo "Lead time B: $leadB_min minutes $leadB_rem seconds"
 
         - name: Upload CSV artifact
           uses: actions/upload-artifact@v4
