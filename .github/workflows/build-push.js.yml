@@ -42,7 +42,7 @@ jobs:
         id: lt_start
         run: |
           START_TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          echo "START_TS=$START_TS" >> "$GITHUB_OUTPUT"
+          echo "start_ts=$START_TS" >> "$GITHUB_OUTPUT"
           echo "Pipeline start timestamp (UTC): $START_TS"
 
       - name: Set up QEMU (cross-arch)
