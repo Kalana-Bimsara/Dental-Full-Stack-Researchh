@@ -44,6 +44,7 @@ const NavbarComponent = () => {
               src="Icon.png"
               alt="Logo"
               className="navbar-brand img me-2 align-items-left"
+              title="Smile Dental – Trusted Care Every Visit"
             />
           </a>
           <button
