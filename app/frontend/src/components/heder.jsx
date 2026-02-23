@@ -19,7 +19,7 @@ const Header = () => {
             Schedule Now
             </Link>
             <p>
-              or call <span className="fs-4">0777 38 65 90</span> for
+              or call <span className="fs-4">+94 777 38 65 90</span> for
               appointments
             </p>
           </div>
