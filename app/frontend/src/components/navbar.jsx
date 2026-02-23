@@ -127,7 +127,11 @@ const NavbarComponent = () => {
 
 
             {isadmin && (
-              <Link to="/dashboard" className="btn btn-warning btn-lg ms-3">
+              <Link
+                to="/dashboard"
+                className="btn btn-lg ms-3"
+                style={{ backgroundColor: "silver", color: "black" }}
+              >
                 Admin Dashboard
               </Link>
             )}
