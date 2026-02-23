@@ -16,7 +16,7 @@ const Header = () => {
             <h1>Welcome to Smile Dental Care</h1>
             <p>Providing exceptional dental care for all ages</p>
             <Link to="/booking" className="btn btn-primary btn-lg mt-3">
-            Book Online
+            Schedule Now
             </Link>
             <p>
               or call <span className="fs-4">0777 38 65 90</span> for
