@@ -7,14 +7,9 @@ const Footer = () => {
               <footer className="bg-dark-navy text-white py-4 shadow-sm">
     <div className="container">
       <div className="d-flex justify-content-center mb-3">
-        <ul className="navbar-nav d-flex flex-row">
-          <li className="nav-item me-4"><Link to="/" className="nav-link text-white fs-5" href="#about">About Us </Link></li>
-          <li className="nav-item me-4"><Link to="/" className="nav-link text-white fs-5" href="#">Home </Link></li>
-          <li className="nav-item me-4"><Link to="/" className="nav-link text-white fs-5" href="#services">Services </Link></li>
-          <li className="nav-item me-4"><Link to="/" className="nav-link text-white fs-5" href="#prices">Prices </Link></li>
-          <li className="nav-item me-4"><Link to="/" className="nav-link text-white fs-5" href="#ourteam">Our Team </Link></li>
-          <li className="nav-item"><Link to="/" className="nav-link text-white fs-5" href="#contact">Contact</Link></li>
-        </ul>
+              <p className="fs-5 text-white mb-1">
+                Smile Dental – Providing trusted dental care for all ages.
+              </p>
       </div>
       <div className="d-flex justify-content-center mb-3">
         <a href="https://www.facebook.com" className="me-3">
