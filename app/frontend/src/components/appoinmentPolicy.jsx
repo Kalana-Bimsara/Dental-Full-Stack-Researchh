@@ -40,9 +40,7 @@ const AppoinmentPolicy = () => {
               have been made in advance. The clinic accepts various forms of
               payment, including cash, credit, and debit cards.
             </li>
-            <li>
-              We understand that unexpected circumstances may arise. If you need to cancel or reschedule your appointment, we kindly ask that you notify our clinic at least 24 hours in advance. This allows us to offer the time slot to other patients and maintain efficient scheduling for everyone. Last-minute cancellations or no-shows may be subject to a rescheduling fee or policy as determined by the clinic.
-            </li>
+           
           </ol>
         </div>
       </div>
