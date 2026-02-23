@@ -173,6 +173,7 @@ export const AdminAddService = async (req, res) => {
       });
     }
 
+    // TODO: check this later
     return res.status(500).json({
       message: "Server error",
     });
