@@ -1,8 +1,8 @@
 // React import not required with the new JSX runtime
 import { useForm } from "react-hook-form";
 import axios from "axios";
-  const BACKEND_PORT = "__VITE_BACKEND_PORT__";
-  const HOST = "__VITE_HOST__";
+const BACKEND_PORT = "__VITE_BACKEND_PORT__";
+const HOST = "__VITE_HOST__";
 
 const Contact = () => {
   const {
@@ -18,7 +18,7 @@ const Contact = () => {
       reset();
       alert("message saved");
     }
-    
+
   };
 
   return (
@@ -35,7 +35,7 @@ const Contact = () => {
               onSubmit={handleSubmit(onSubmit)}
             >
               <h2 className="text-center mb-4">Contact Us</h2>
-              
+
               {/* Name Field */}
               <div className="mb-3">
                 <label htmlFor="name" className="form-label">
@@ -53,7 +53,7 @@ const Contact = () => {
                   <div className="invalid-feedback">{errors.name.message}</div>
                 )}
               </div>
-              
+
               {/* Email Field */}
               <div className="mb-3">
                 <label htmlFor="email" className="form-label">
@@ -76,7 +76,7 @@ const Contact = () => {
                   <div className="invalid-feedback">{errors.email.message}</div>
                 )}
               </div>
-              
+
               {/* Message Field */}
               <div className="mb-3">
                 <label htmlFor="message" className="form-label">
@@ -99,7 +99,7 @@ const Contact = () => {
                   <div className="invalid-feedback">{errors.message.message}</div>
                 )}
               </div>
-              
+
               {/* Submit Button */}
               <div className="d-flex justify-content-center">
                 <button type="submit" className="btn btn-primary">

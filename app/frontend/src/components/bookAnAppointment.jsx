@@ -47,25 +47,25 @@ const BookAnAppointment = () => {
       const response = await axios.post(
         `${HOST}/api/create-payment-intent`,
         {
-          
-          patientName : data.patientName,
-          mobileNumber : data.mobileNumber,
-          emailAddress : data.emailAddress,
-          doctor : data.doctor,
-          service : data.service,
-          appointmentDate : data.appointmentDate,
-          selectedPrice :selectedPrice,
+
+          patientName: data.patientName,
+          mobileNumber: data.mobileNumber,
+          emailAddress: data.emailAddress,
+          doctor: data.doctor,
+          service: data.service,
+          appointmentDate: data.appointmentDate,
+          selectedPrice: selectedPrice,
 
         }
       );
-      sessionStorage.setItem("patientName" , data.patientName);
-      sessionStorage.setItem("mobileNumber" , data.mobileNumber);
-      sessionStorage.setItem("emailAddress" , data.emailAddress);
-      sessionStorage.setItem("doctor" , data.doctor);
-      sessionStorage.setItem("service" , data.service);
-      sessionStorage.setItem("appointmentDate" , data.appointmentDate);
+      sessionStorage.setItem("patientName", data.patientName);
+      sessionStorage.setItem("mobileNumber", data.mobileNumber);
+      sessionStorage.setItem("emailAddress", data.emailAddress);
+      sessionStorage.setItem("doctor", data.doctor);
+      sessionStorage.setItem("service", data.service);
+      sessionStorage.setItem("appointmentDate", data.appointmentDate);
       sessionStorage.setItem("price", selectedPrice);
- 
+
       if (response) {
         console.log(response.data.clientSecret);
       }
