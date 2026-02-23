@@ -46,4 +46,10 @@ Frontend: http://localhost:5173
 Backend: http://localhost:9000
 Mongo Express: http://localhost:8081
 
+## Contributors
+
+This project was developed by: 
+- **Dineth Chathurya** – Backend lead & feature development
+- **Kalana Bimsara** – Research lead & CI/CD implementation 
+
 
