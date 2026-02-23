@@ -27,6 +27,7 @@ const About = () => {
                   <li className="mb-2">Experienced Dentists</li>
                   <li className="mb-2">Modern Equipment</li>
                   <li className="mb-2">Personalized Care</li>
+                  <li className="mb-2">Insurance Accepted</li>
                 </ul>
                 <ul className="text-start ps-3 col-md-6">
                   <li className="mb-2">Comfortable Environment</li>
