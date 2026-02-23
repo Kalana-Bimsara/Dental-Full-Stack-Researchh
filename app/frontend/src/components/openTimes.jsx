@@ -42,11 +42,11 @@ const OpenTimes = () => {
                   </tr>
                   <tr>
                     <td>Saturday</td>
-                    <td>Closed</td>
+                    <td>8:30 AM - 3 PM</td>
                   </tr>
                   <tr>
                     <td>Sunday</td>
-                    <td>8:30 AM - 3 PM</td>
+                    <td>Closed</td>
                   </tr>
                   <tr>
                     <td>Holidays</td>
