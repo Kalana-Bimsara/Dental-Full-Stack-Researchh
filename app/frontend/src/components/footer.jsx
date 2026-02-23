@@ -4,7 +4,10 @@ import { Link } from "react-router";
 const Footer = () => {
   return (
     <>
-      <footer className="bg-secondary text-white py-4 shadow-sm">
+      <footer
+        className="text-white py-4 shadow-sm"
+        style={{ backgroundColor: "#B8860B" }}
+      >
         <div className="container">
           <div className="d-flex justify-content-center mb-3">
             <p className="fs-5 text-white mb-1">
