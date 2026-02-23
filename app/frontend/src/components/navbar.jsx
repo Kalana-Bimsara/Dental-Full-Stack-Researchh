@@ -11,6 +11,8 @@ const NavbarComponent = () => {
     !!sessionStorage.getItem("token")
   );
 
+  const [adminHover, setAdminHover] = useState(false);   // ← ADD THIS LINE
+
   const navigate = useNavigate();
 
 
@@ -131,7 +133,13 @@ const NavbarComponent = () => {
               <Link
                 to="/dashboard"
                 className="btn btn-lg ms-3"
-                style={{ backgroundColor: "silver", color: "black" }}
+                style={{
+                  backgroundColor: adminHover ? "#8c8c8c" : "silver",
+                  color: adminHover ? "white" : "black",
+                  transition: "0.3s ease"
+                }}
+                onMouseEnter={() => setAdminHover(true)}
+                onMouseLeave={() => setAdminHover(false)}
               >
                 Admin Dashboard
               </Link>
