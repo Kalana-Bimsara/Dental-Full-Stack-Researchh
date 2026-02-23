@@ -58,7 +58,7 @@ const OpenTimes = () => {
               {/* Contact */}
               <h6 className="mb-0 text-center">Contact Us</h6>
               <p className="mb-0 text-center">
-                Call 0777 38 65 90 for appointments
+                Call +94 777 38 65 90 for appointments
               </p>
             </div>
             {/* Social Media Icons */}
