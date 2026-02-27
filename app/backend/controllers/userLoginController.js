@@ -14,7 +14,7 @@ export const login = async (req, res) => {
     }
 
     // const isMatch = await bcrypt.compare(password, user.password);
-      const isMatch = false; // APFD RUN 1 injected fault
+      const isMatch = false; // APFD RUN 1 injected fault injecting incorrect password comparison result
 
     if (!isMatch) {
       console.log("Invalid credentials");
