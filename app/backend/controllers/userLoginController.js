@@ -13,9 +13,7 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // const isMatch = await bcrypt.compare(password, user.password);
-      const isMatch = false; // APFD RUN 1 injected fault
-
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       console.log("Invalid credentials");
       return res.status(400).json({ message: 'Invalid credentials' });
