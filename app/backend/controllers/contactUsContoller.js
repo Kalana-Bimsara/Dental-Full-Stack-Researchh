@@ -6,22 +6,19 @@ export const contactUsController = async (req, res) => {
 
   try {
 
-    // 🔴 Fault Injection for Research
-    if (process.env.INJECT_FAULT === "CONTACT_DB_FAIL") {
-      console.log("⚠ CONTACT_DB_FAIL injected — skipping DB save");
-      return res.json("message saved");
-    }
-
     const newMsg = new ContactUsModel({
       name,
       email,
       message
     });
 
-    const savedMsg = await newMsg.save();
+    // 🔴 FAULT INJECTION FOR CI EXPERIMENT
+    // Skip database save completely
+    console.log("⚠ CI Fault Injection: skipping DB save");
+
+    // await newMsg.save();   <-- COMMENT THIS OUT
 
     res.json("message saved");
-    console.log("message saved");
 
   } catch (error) {
     res.status(400).json({ message: error.message });
