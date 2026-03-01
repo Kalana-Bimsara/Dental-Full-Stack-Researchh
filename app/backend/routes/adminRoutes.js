@@ -9,7 +9,7 @@ const router = express.Router();
 router.get('/getcontactus',AuthMiddleware , isAdmin, AdminGetcontactUsController);
 router.get("/getdoctors",AuthMiddleware , isAdmin, AdminGetDoctors);
 
-router.post("/addDoctor",AuthMiddleware , isAdmin, AdminAddNewDoctor);
+router.post("/addDoctor", AuthMiddleware, AdminAddNewDoctor);
 router.post("/adddate", AuthMiddleware , isAdmin, AdminAddDate);
 router.post("/addservice", AuthMiddleware , isAdmin, AdminAddService);
 

@@ -3,17 +3,23 @@ import DoctorModel from "../models/doctorModel.js";
 import ServiceModel from "../models/services.js";
 
 export const AdminAddNewDoctor = async (req, res) => {
+    const {doctorName, doctorSpecialty, doctorRegistration} = req.body;
     try {
-
-        console.log("⚠️ Injected Fault F5 – Add Doctor API forced failure");
-
-        return res.status(500).json({
-            message: "Injected backend failure F5"
+        const newDoctor = new DoctorModel({
+            name : doctorName, 
+            specialty : doctorSpecialty,
+            registrationNumber : doctorRegistration,
         });
 
-    } catch (error) {
+        const newOne = await newDoctor.save();
+        if (newOne) {
+            console.log("Doctor registered");
+            res.json("Doctor registered");
+        }
+
+      } catch (error) {
         res.status(500).json({ message: error.message });
-    }
+      }
 };
 
 export const AdminGetDoctors = async (req, res) => {
