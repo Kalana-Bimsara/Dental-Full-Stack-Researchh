@@ -70,23 +70,24 @@ const AddAvailableDateModal = () => {
   // }
 
   async function getDoctors() {
-    try {
-      const response = await axios.get(
-        `${HOST}/api/api/admin/getdoctors`,
-        config
-      );
+  try {
+    const response = await axios.get(
+      `${HOST}/api/api/admin/getdoctors`,
+      config
+    );
 
-      console.log("⚠️ Injected Fault F12 – Doctors not set in UI");
+    const data = Array.isArray(response.data)
+      ? response.data
+      : response.data.data || [];
 
-      setDoctors([]);   // 🔴 FAULT: Doctors never loaded
-
-    } catch (error) {
-      console.log(error);
-      setDoctors([]);
-    }
+    setDoctors(data);
+  } catch (error) {
+    console.log(error);
+    setDoctors([]);
   }
+}
 
-
+  
 
   // async function getdates() {
   //   try {
@@ -102,23 +103,23 @@ const AddAvailableDateModal = () => {
   // }
 
 
-  async function getdates() {
-    try {
-      const response = await axios.get(
-        `${HOST}/api/getdates`,
-        config
-      );
+async function getdates() {
+  try {
+    const response = await axios.get(
+      `${HOST}/api/getdates`,
+      config
+    );
 
-      const data = Array.isArray(response.data)
-        ? response.data
-        : response.data.data || [];
+    const data = Array.isArray(response.data)
+      ? response.data
+      : response.data.data || [];
 
-      setDates(data);
-    } catch (error) {
-      console.log(error);
-      setDates([]);
-    }
+    setDates(data);
+  } catch (error) {
+    console.log(error);
+    setDates([]);
   }
+}
 
   useEffect(() => {
     getDoctors();
@@ -221,7 +222,7 @@ const AddAvailableDateModal = () => {
                       id="appointmentDate"
                       min={minDate} // UI restriction
                       {...register("appointmentDate", {
-                        required: "Date required",
+                        required: "Please select a date",
                         validate: (value) => {
                           const selectedDate = new Date(value);
                           selectedDate.setHours(0, 0, 0, 0);
