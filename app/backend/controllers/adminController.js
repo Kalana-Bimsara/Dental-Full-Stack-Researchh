@@ -149,11 +149,33 @@ export const AdminAddDate = async (req, res) => {
 
 
 export const AdminAddService = async (req, res) => {
-  console.log("⚠️ Fault F11 Injected – Service creation always succeeds (no validation)");
+  const { serviceName, servicePrice } = req.body;
 
-  // 🔴 Do NOT save anything
-  return res.status(201).json({
-    message: "Service added successfully",
-    data: null,
-  });
+  try {
+    const newService = new ServiceModel({
+      name: serviceName,
+      price: servicePrice,
+    });
+
+    const saved = await newService.save();
+
+    return res.status(201).json({
+      message: "Service added successfully",
+      data: saved,
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    if (error.code === 11000) {
+      return res.status(400).json({
+        message: error.message,
+      });
+    }
+
+    // TODO: check this later
+    return res.status(500).json({
+      message: "Server error",
+    });
+  }
 };
