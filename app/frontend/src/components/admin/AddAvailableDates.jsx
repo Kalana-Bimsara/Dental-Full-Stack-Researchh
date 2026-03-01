@@ -6,14 +6,16 @@ import DashboardDatesTableRow from "./adminComponents/dashboardDatesTableRow";
 
 const AddAvailableDateModal = () => {
 
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
+  // Get tomorrow
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
 
+  // Format to YYYY-MM-DD
   const minDate = tomorrow.toISOString().split("T")[0];
-
   const token = sessionStorage.getItem('token');
 
   const config = {
@@ -33,17 +35,18 @@ const AddAvailableDateModal = () => {
   } = useForm();
 
   const HOST = "__VITE_HOST__";
+  const PORT = "__VITE_BACKEND_PORT__";
+
 
   const onSubmit = async (data) => {
+
     try {
       const response = await axios.post(
-        `${HOST}/api/api/admin/adddate`,
-        data,
-        config
+        `${HOST}/api/api/admin/adddate`, data, config
       );
-
       if (response.data) {
         alert("Date added successfully!");
+        console.log("Added date:", response.data);
         reset();
         getdates();
       }
@@ -53,41 +56,70 @@ const AddAvailableDateModal = () => {
     }
   };
 
+  // async function getDoctors() {
+  //   try {
+  //     const response = await axios.get(
+  //       `${HOST}/api/api/admin/getdoctors`, config
+  //     );
+  //     if (response.data) {
+  //       setDoctors(response.data);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
+
   async function getDoctors() {
-    try {
-      const response = await axios.get(
-        `${HOST}/api/api/admin/getdoctors`,
-        config
-      );
+  try {
+    const response = await axios.get(
+      `${HOST}/api/api/admin/getdoctors`,
+      config
+    );
 
-      const data = Array.isArray(response.data)
-        ? response.data
-        : response.data.data || [];
+    const data = Array.isArray(response.data)
+      ? response.data
+      : response.data.data || [];
 
-      setDoctors(data);
-    } catch (error) {
-      console.log(error);
-      setDoctors([]);
-    }
+    setDoctors(data);
+  } catch (error) {
+    console.log(error);
+    setDoctors([]);
   }
+}
 
-  async function getdates() {
-    try {
-      const response = await axios.get(
-        `${HOST}/api/getdates`,
-        config
-      );
+  
 
-      const data = Array.isArray(response.data)
-        ? response.data
-        : response.data.data || [];
+  // async function getdates() {
+  //   try {
+  //     const response = await axios.get(
+  //       `${HOST}/getdates`, config
+  //     );
+  //     if (response.data) {
+  //       setDates(response.data);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
 
-      setDates(data);
-    } catch (error) {
-      console.log(error);
-      setDates([]);
-    }
+
+async function getdates() {
+  try {
+    const response = await axios.get(
+      `${HOST}/api/getdates`,
+      config
+    );
+
+    const data = Array.isArray(response.data)
+      ? response.data
+      : response.data.data || [];
+
+    setDates(data);
+  } catch (error) {
+    console.log(error);
+    setDates([]);
   }
+}
 
   useEffect(() => {
     getDoctors();
@@ -99,7 +131,6 @@ const AddAvailableDateModal = () => {
       <section id="Team" className="shadow-box bg-custom-blue">
         <div className="mt-4">
           <h3 className="text-center">Doctors Availability</h3>
-
           <button
             className="btn btn-primary mb-3"
             data-bs-toggle="modal"
@@ -107,8 +138,7 @@ const AddAvailableDateModal = () => {
           >
             Add New Date
           </button>
-
-          <table className="table table-striped" id="doctorTable">
+          <table className="table table-striped " id="doctorTable">
             <thead>
               <tr>
                 <th>Doctor Name</th>
@@ -116,17 +146,18 @@ const AddAvailableDateModal = () => {
               </tr>
             </thead>
             <tbody>
-              {dates.map((date) => (
-                <DashboardDatesTableRow
-                  key={date._id}
-                  doctorName={date.doctorName}
-                  date={date.date}
-                />
-              ))}
+              {dates.map((date) => {
+                return (
+                  <DashboardDatesTableRow
+                    key={date._id}
+                    doctorName={date.doctorName}
+                    date={date.date}
+                  />
+                );
+              })}
             </tbody>
           </table>
         </div>
-
         <div
           className="modal fade"
           id="addDateModal"
@@ -137,64 +168,93 @@ const AddAvailableDateModal = () => {
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header text-custom-blue">
-                <h5 className="modal-title text-center">
+                <h5
+                  className="modal-title text-center"
+                  id="addDateModalLabel"
+                >
                   Add New Date
                 </h5>
                 <button
                   type="button"
                   className="btn-close"
                   data-bs-dismiss="modal"
+                  aria-label="Close"
                 ></button>
               </div>
-
               <div className="modal-body">
                 <form onSubmit={handleSubmit(onSubmit)}>
-
                   <div className="mb-3 text-custom-blue">
-                    <label className="form-label">Doctor Name</label>
-
-                    {/* ✅ Doctor validation remains */}
+                    <label htmlFor="doctorName" className="form-label">
+                      Doctor Name
+                    </label>
                     <select
                       className="form-select"
+                      id="doctor"
                       {...register("doctor", {
                         required: "Please select a doctor",
                       })}
                     >
                       <option value="">Select the Doctor</option>
-                      {doctors.map((doctor) => (
-                        <DashboardAppoimantsDoctorOption
-                          key={doctor._id}
-                          value={doctor._id}
-                          option={doctor.name}
-                        />
-                      ))}
+                      {doctors.map((doctor) => {
+                        return (
+                          <DashboardAppoimantsDoctorOption
+                            key={doctor._id}
+                            value={doctor._id}
+                            option={doctor.name}
+                          />
+                        );
+                      })}
                     </select>
-
                     {errors.doctor && (
                       <span className="text-danger">
                         {errors.doctor.message}
                       </span>
                     )}
 
-                    <label className="form-label mt-3">
+                    <label htmlFor="appointmentDate" className="form-label">
                       Select a Date
                     </label>
 
-                    {/* 🔴 Fault F9 – Date validation removed */}
+
                     <input
                       type="date"
                       className="form-control"
-                      min={minDate}
-                      {...register("appointmentDate")}
+                      id="appointmentDate"
+                      min={minDate} // UI restriction
+                      {...register("appointmentDate", {
+                        required: "Please select a date",
+                        validate: (value) => {
+                          const selectedDate = new Date(value);
+                          selectedDate.setHours(0, 0, 0, 0);
+
+                          if (selectedDate <= today) {
+                            return "Please select a future date (from tomorrow onward)";
+                          }
+                          return true;
+                        },
+                      })}
                     />
 
-                    {/* Error message will never appear now */}
                     {errors.appointmentDate && (
                       <span className="text-danger">
                         {errors.appointmentDate.message}
                       </span>
                     )}
 
+
+                    {/* <input
+                      type="date"
+                      className="form-control"
+                      id="appointmentDate"
+                      {...register("appointmentDate", {
+                        required: "Please select a date",
+                      })}
+                    />
+                    {errors.appointmentDate && (
+                      <span className="text-danger">
+                        {errors.appointmentDate.message}
+                      </span>
+                    )} */}
                   </div>
 
                   <div className="modal-footer">
@@ -209,13 +269,11 @@ const AddAvailableDateModal = () => {
                       Close
                     </button>
                   </div>
-
                 </form>
               </div>
             </div>
           </div>
         </div>
-
       </section>
     </>
   );
