@@ -148,160 +148,34 @@ export const AdminAddDate = async (req, res) => {
 // };
 
 
-import Availabledate from "../models/availableDate.js";
-import DoctorModel from "../models/doctorModel.js";
-import ServiceModel from "../models/services.js";
-
-export const AdminAddNewDoctor = async (req, res) => {
-    const {doctorName, doctorSpecialty, doctorRegistration} = req.body;
-    try {
-        const newDoctor = new DoctorModel({
-            name : doctorName, 
-            specialty : doctorSpecialty,
-            registrationNumber : doctorRegistration,
-        });
-
-        const newOne = await newDoctor.save();
-        if (newOne) {
-            console.log("Doctor registered");
-            res.json("Doctor registered");
-        }
-
-      } catch (error) {
-        res.status(500).json({ message: error.message });
-      }
-};
-
-export const AdminGetDoctors = async (req, res) => {
-
-    try {
-        const doctors = await DoctorModel.find();
-        if (doctors) {
-            res.json(doctors);
-        }
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: error.message });
-    }
-
-};
-
-export const AdminAddDate = async (req, res) => {
-  const { doctor, appointmentDate } = req.body;
+export const AdminAddService = async (req, res) => {
+  const { serviceName, servicePrice } = req.body;
 
   try {
-    if (!doctor || !appointmentDate) {
-      return res.status(400).json({ message: "Doctor and date are required" });
-    }
-
-    // Normalize today's date (remove time)
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const selectedDate = new Date(appointmentDate);
-    selectedDate.setHours(0, 0, 0, 0);
-
-    // Reject today and past dates
-    if (selectedDate <= today) {
-      return res.status(400).json({
-        message: "Only future dates (from tomorrow onward) are allowed",
-      });
-    }
-
-    const newDate = new Availabledate({
-      doctor_id: doctor,
-      date: selectedDate,
+    const newService = new ServiceModel({
+      name: serviceName,
+      price: servicePrice,
     });
 
-    const addedDate = await newDate.save();
+    const saved = await newService.save();
 
     return res.status(201).json({
-      message: "Date added successfully",
-      data: addedDate,
+      message: "Service added successfully",
+      data: saved,
     });
 
   } catch (error) {
     console.error(error);
+
+    if (error.code === 11000) {
+      return res.status(400).json({
+        message: error.message,
+      });
+    }
+
+    // TODO: check this later
     return res.status(500).json({
       message: "Server error",
     });
   }
-};
-
-
-// export const AdminAddDate = async (req,res) =>{
-
-//     const {doctor, appointmentDate} = req.body;
-
-//     try {
-//         const newDate = new Availabledate({
-//             doctor_id : doctor,
-//             date : appointmentDate,
-//         });
-
-//         const addedDate = await newDate.save();
-//         if (addedDate) {
-//             res.json("date added");
-//         }
-
-//     } catch (error) {
-//         console.log(error);
-//     }
-// };
-
-// export const AdminAddService = async (req, res) => {
-//     const {serviceName, servicePrice} = req.body;
-//         try {
-//         const newService = new ServiceModel({
-//             name :serviceName,
-//             price: servicePrice,
-//         }); 
-
-//          const saved = await newService.save();
-//          res.json("success");
-//     } catch (error) {
-//         console.log(error);
-//         res.status(500).json({ message: error.message });
-//     }
-// }
-
-
-// export const AdminAddService = async (req, res) => {
-//   const { serviceName, servicePrice } = req.body;
-
-//   try {
-//     const newService = new ServiceModel({
-//       name: serviceName,
-//       price: servicePrice,
-//     });
-
-//     const saved = await newService.save();
-
-//     return res.status(201).json({
-//       message: "Service added successfully",
-//       data: saved,
-//     });
-
-//   } catch (error) {
-//     console.error(error);
-
-//     if (error.code === 11000) {
-//       return res.status(400).json({
-//         message: "Service name already exists",
-//       });
-//     }
-
-//     return res.status(500).json({
-//       message: "Server error",
-//     });
-//   }
-// };
-
-
-export const AdminAddService = async (req, res) => {
-  console.log("⚠️ Fault F11 Injected – Invalid services allowed");
-
-  return res.status(201).json({
-    message: "Service added successfully",
-  });
 };
