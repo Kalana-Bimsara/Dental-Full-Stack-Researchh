@@ -1,39 +1,38 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 
+
 const AddServiceModal = (props) => {
+
 
   const token = sessionStorage.getItem('token');
 
   const HOST = "__VITE_HOST__";
+  const PORT = "__VITE_BACKEND_PORT__";
 
+  // Config for Authorization header
   const config = {
     headers: {
       Authorization: `Bearer ${token}`, 
     },
   };
 
-  // 🔴 Fault F11 – Validation disabled
   const {
     register,
     handleSubmit,
+    formState: { errors },
     reset
   } = useForm();
 
   const onSubmit = async (data) => {
 
-    console.log("⚠️ Fault F11 Injected – UI validation disabled");
     console.log("Submitting service:", data);
 
     try {
-      const response = await axios.post(
-        `${HOST}/api/api/admin/addservice`,
-        data,
-        config
-      );
-
+      const response = await axios.post(`${HOST}/api/api/admin/addservice`, data, config);
       if (response.data) {
+       // alert(response.data);
         alert("Service added successfully!");
         reset();
         props.func();
@@ -70,10 +69,8 @@ const AddServiceModal = (props) => {
                 aria-label="Close"
               ></button>
             </div>
-
             <div className="modal-body">
               <form onSubmit={handleSubmit(onSubmit)} id="addServiceForm">
-
                 <div className="mb-3">
                   <label
                     htmlFor="serviceName"
@@ -81,17 +78,26 @@ const AddServiceModal = (props) => {
                   >
                     Service Name
                   </label>
-
-                  {/* 🔴 Validation removed */}
                   <input
                     type="text"
-                    className="form-control"
+                    className={`form-control ${errors.serviceName ? "is-invalid" : ""
+                      }`}
                     id="serviceName"
                     placeholder="Enter Service Name"
-                    {...register("serviceName")}
+                    {...register("serviceName", {
+                      required: "Service name is required",
+                      minLength: {
+                        value: 3,
+                        message: "Service name must be at least 3 characters long",
+                      },
+                    })}
                   />
+                  {errors.serviceName && (
+                    <div className="invalid-feedback">
+                      {errors.serviceName.message}
+                    </div>
+                  )}
                 </div>
-
                 <div className="mb-3">
                   <label
                     htmlFor="servicePrice"
@@ -99,21 +105,32 @@ const AddServiceModal = (props) => {
                   >
                     Service Price
                   </label>
-
-                  {/* 🔴 Validation removed */}
                   <input
                     type="text"
-                    className="form-control"
+                    className={`form-control ${errors.servicePrice ? "is-invalid" : ""
+                      }`}
                     id="servicePrice"
                     placeholder="Enter Service Price"
-                    {...register("servicePrice")}
+                    {...register("servicePrice", {
+                      required: "Service price is required",
+                      pattern: {
+                        value: /^[0-9]+(\.[0-9]{1,2})?$/,
+                        message: "Invalid price format",
+                      },
+                    })}
                   />
+                  {errors.servicePrice && (
+                    <div className="invalid-feedback">
+                      {errors.servicePrice.message}
+                    </div>
+                  )}
                 </div>
 
                 <button type="submit" className="btn btn-primary">
                   Add Service
                 </button>
-
+              
+         
                 <button
                   type="button"
                   className="btn btn-secondary"
@@ -123,7 +140,6 @@ const AddServiceModal = (props) => {
                 >
                   Cancel
                 </button>
-
               </form>
             </div>
           </div>
