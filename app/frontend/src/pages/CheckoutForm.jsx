@@ -26,13 +26,13 @@ export default function CheckoutForm() {
 
     setIsLoading(true);
 
-    console.log("⚠️ Injected Fault F9 – Blocking payment confirmation");
-
-    // 🔴 Skip Stripe confirmation completely
-    const error = {
-      type: "validation_error",
-      message: "Injected payment failure",
-    };
+    const { error } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: `${FRONTEND_URL}/complete`, // Use the env variable here
+       // return_url: `https://www.google.com`,
+      },
+    });
 
     if (error) {
       if (error.type === "card_error" || error.type === "validation_error") {
