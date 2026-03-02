@@ -1,6 +1,8 @@
 // React import not required with the new JSX runtime
 
 const Prices = () => {
+  console.log("⚠️ Injected Fault F13 – Prices page broken");
+  throw new Error("Injected Prices Page Crash");
   return (
     <>
       <section id="prices" className="py-5 --bs-primary">
