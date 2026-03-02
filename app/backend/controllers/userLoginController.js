@@ -14,40 +14,31 @@ export const login = async (req, res) => {
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
-
     if (!isMatch) {
       console.log("Invalid credentials");
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // 🔴 FAULT F8 – Block admin login
-    if (user.isAdmin) {
-      console.log("⚠️ Injected Fault F8 – Admin login blocked");
-      return res.status(403).json({
-        message: "Injected admin login failure"
-      });
-    }
-
     console.log("User data:", user);
 
-    const token = jwt.sign({
-      userId: user._id,
-      username: user.username,
-      isAdmin: user.isAdmin
+    const token = jwt.sign({ 
+      userId: user._id, 
+      username: user.username, 
+      isAdmin: user.isAdmin  
     }, JWT_SECRET, {
-      expiresIn: '1h',
+      expiresIn: '1h', 
     });
 
     console.log("JWT token:", token);
     res.json({
       token,
-      user: {
-        id: user._id,
+      user: { 
+        id: user._id, 
         email: user.email,
-        isAdmin: user.isAdmin
+        isAdmin: user.isAdmin 
       },
     });
-
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });

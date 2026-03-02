@@ -109,7 +109,12 @@ const NavbarComponent = () => {
               </li>
             </ul>
             {/* Book Now Button */}
-            <Link to="/booking" className="btn btn-primary btn-lg ms-3" >Book Now</Link>
+            <button
+              className="btn btn-primary btn-lg ms-3"
+              onClick={() => console.log("⚠️ Injected F14 – Booking disabled")}
+            >
+              Book Now
+            </button>
             {/* <Link to="/login" className="btn btn-success btn-lg ms-3" >Log In</Link> */}
             {/* Show Log In only when NOT logged in */}
             {!isLoggedIn && (

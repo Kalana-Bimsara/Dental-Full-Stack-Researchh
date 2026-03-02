@@ -1,6 +1,10 @@
 // React import not required with the new JSX runtime
 
 const Prices = () => {
+
+  console.log("⚠️ Injected Fault F13 – Prices page blank");
+  return null;
+
   return (
     <>
       <section id="prices" className="py-5 --bs-primary">
