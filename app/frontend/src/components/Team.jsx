@@ -21,7 +21,7 @@ const Team = () => {
         <div className="container shaded-section shadow-sm p-3">
           <div className="row text-center text-custom-blue">
             {/* <!-- Profile 1 --> */}
-            <div className="col-md-3 mb-4">
+            {/* <div className="col-md-3 mb-4">
               <div className="profile-card">
                 <img src="D1.jpg" alt="Dr Lahiru Rajakaruna" />
                 <h5>Dr Lahiru Rajakaruna</h5>
@@ -37,7 +37,7 @@ const Team = () => {
                 </p>
                 <p>Sri Lanka Medical Council Registration Number: 2698</p>
               </div>
-            </div>
+            </div> */}
             {/* <!-- Profile 2 --> */}
             <div className="col-md-3 mb-4">
               <div className="profile-card">
