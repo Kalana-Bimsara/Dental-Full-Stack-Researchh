@@ -39,7 +39,10 @@ const NavbarComponent = () => {
 
   return (
     <>
-      <nav className="navbar navbar-expand-lg navbar-light bg-dark-navy shadow-sm sticky-top">
+      <nav
+        className="navbar navbar-expand-lg navbar-light shadow-sm sticky-top"
+        style={{ backgroundColor: "orange" }}
+      >
         <div className="container">
           <a className="navbar-brand d-flex align-items-center" href="#">
             <img
