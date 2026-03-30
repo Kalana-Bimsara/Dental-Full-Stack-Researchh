@@ -41,8 +41,10 @@ const NavbarComponent = () => {
     <>
       <nav
         className="navbar navbar-expand-lg navbar-light shadow-sm sticky-top"
-        style={{ backgroundColor: "orange" }}
-      >
+        style={{
+          background: "linear-gradient(90deg, #4facfe, #00f2fe)",
+        }}
+>
         <div className="container">
           <a className="navbar-brand d-flex align-items-center" href="#">
             <img
