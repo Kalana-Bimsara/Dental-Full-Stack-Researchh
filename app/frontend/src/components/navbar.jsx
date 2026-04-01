@@ -133,7 +133,7 @@ const NavbarComponent = () => {
             )}
 
 
-            {/* {isadmin && (
+            {isadmin && (
               <Link
                 to="/dashboard"
                 className="btn btn-lg ms-3"
@@ -147,7 +147,7 @@ const NavbarComponent = () => {
               >
                 Admin Dashboard
               </Link>
-            )} */}
+            )}
           </div>
         </div>
       </nav>
