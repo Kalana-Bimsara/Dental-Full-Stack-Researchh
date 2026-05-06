@@ -26,7 +26,7 @@ const Footer = () => {
             </a>
           </div>
           <div className="text-center">
-            <p className="mb-1">© 2024 Smile Dental | All Rights Reserved</p>
+            <p className="mb-1">© 2024 Smile Dental | All Rights Reserved.</p>
             <p className="mb-0">Call <span className="fs-4">0777 38 65 90</span> for appointments</p>
           </div>
         </div>
