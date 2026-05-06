@@ -32,7 +32,7 @@ const AppoinmentPolicy = () => {
               early also gives us the opportunity to prepare for your visit and
               address any questions or concerns you may have. We appreciate your
               cooperation and look forward to providing you with exceptional
-              dental care..
+              dental care.
             </li>
             <li>
               Payment: Patients are responsible for paying their portion of the
